@@ -4,6 +4,7 @@ namespace Mhe\Newsletter\Forms;
 
 use Mhe\Newsletter\Model\Recipient;
 use SilverStripe\Control\RequestHandler;
+use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
@@ -27,8 +28,7 @@ class SubscriptionForm extends Form
     {
         $fields = $this->getFormFields();
 
-        // ToDo: add channel selection if necessary
-
+        // Todo: enable multiple forms (e.g. with different channels) per page, set @id
         $actions = FieldList::create(
             FormAction::create('submitSubscription', _t(__CLASS__ . '.ACTION_submit', 'Submit'))
         );
@@ -50,6 +50,10 @@ class SubscriptionForm extends Form
     protected function getFormFields(): FieldList
     {
         $fields = Recipient::singleton()->getFrontEndFields();
+        // ToDo: add channel selection if necessary
+        $fields->push(
+            DropdownField::create('Channels')
+        );
         $this->extend('updateFormFields', $fields);
         return $fields;
     }

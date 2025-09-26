@@ -4,12 +4,13 @@ namespace Mhe\Newsletter\Model;
 
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
+use SilverStripe\Security\PermissionProvider;
 
 /**
  * A newsletter recipient is a person who subscribed to one or more channels {@see \Mhe\Newsletter\Model\Channel}
  * They should have at least a valid email address and possible additional information like their name
  */
-class Recipient extends DataObject
+class Recipient extends DataObject implements PermissionProvider
 {
     /**
      * Permission to view Recipients
