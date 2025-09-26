@@ -1,0 +1,25 @@
+{
+    "name": "mhe/silverstripe-newsletter",
+    "description": "Tools for generating responsive images",
+    "type": "silverstripe-vendormodule",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Martin Heise",
+            "email": "info@martinheise.de"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "silverstripe/recipe-cms": "^5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mhe\\Newsletter\\": "src/",
+            "Mhe\\Newsletter\\Tests\\": "tests/"
+        }
+    }
+}
