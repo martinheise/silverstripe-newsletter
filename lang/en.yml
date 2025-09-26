@@ -1,0 +1,26 @@
+en:
+  Mhe\Newsletter\Controllers\NewsletterAdmin:
+    MENUTITLE: Newsletters
+  Mhe\Newsletter\Forms\SubscriptionForm:
+    ACTION_submit: Submit
+  Mhe\Newsletter\Model\Channel:
+    PLURALNAME: Channels
+    PLURALS:
+      one: 'A Channel'
+      other: '{count} Channels'
+    SINGULARNAME: Channel
+    belongs_many_many_Subscribers: Subscribers
+    db_Title: Title
+  Mhe\Newsletter\Model\Recipient:
+    EDIT_ALL_HELP: 'Manage newsletter recipients.'
+    EDIT_ALL_NAME: 'Edit newsletter recipients'
+    PLURALNAME: Recipients
+    PLURALS:
+      one: 'A Recipient'
+      other: '{count} Recipients'
+    SINGULARNAME: Recipient
+    VIEW_ALL_HELP: 'View newsletter recipients.'
+    VIEW_ALL_NAME: 'View newsletter recipients'
+    db_Email: Email
+    db_FullName: 'Full name'
+    many_many_Subscriptions: Subscriptions

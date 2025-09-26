@@ -4,10 +4,15 @@ namespace Mhe\Newsletter\Model;
 
 use Mhe\Newsletter\Controllers\NewsletterAdmin;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\ManyManyList;
 use SilverStripe\Security\Permission;
 
 /**
  * A channel is a series or category of newsletters a recipient can subscribe to
+ *
+ * @property string $Title Display name of the channel
+ *
+ * @method ManyManyList Subscribers() Subscribers to the channel
  */
 class Channel extends DataObject
 {
@@ -17,9 +22,13 @@ class Channel extends DataObject
         'Title' => 'Varchar'
     ];
 
-    private static $summary_fields = array(
+    private static $summary_fields = [
         'Title'
-    );
+    ];
+
+    private static $belongs_many_many = [
+        'Subscribers' => Recipient::class,
+    ];
 
     public function canView($member = null): bool
     {
@@ -39,5 +48,15 @@ class Channel extends DataObject
     public function canCreate($member = null, $context = []): bool
     {
         return $this->canEdit($member);
+    }
+
+    /**
+     * Get a list of active and confirmed subscribers
+     * @return Recipient[]
+     */
+    public function getActiveSubscribers(): array
+    {
+        // ToDo: implement
+        return [];
     }
 }

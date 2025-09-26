@@ -44,8 +44,7 @@ class Recipient extends DataObject
         ]
     ];
 
-
-    public function providePermissions()
+    public function providePermissions(): array
     {
         $perms = [
             self::VIEW_ALL => [

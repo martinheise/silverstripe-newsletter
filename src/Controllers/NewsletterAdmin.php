@@ -10,7 +10,7 @@ class NewsletterAdmin extends ModelAdmin
 {
     public const CMS_ACCESS = 'CMS_NewsletterAdmin';
 
-    private static $url_segment = 'dlcodes';
+    private static $url_segment = 'newsletter';
 
     private static $managed_models = [
         'channels' => ['title' => "Channels", 'dataClass' => Channel::class],
@@ -19,5 +19,5 @@ class NewsletterAdmin extends ModelAdmin
 
     private static $required_permission_codes = self::CMS_ACCESS;
 
-    private static $menu_icon_class = 'font-icon-mail';
+    private static $menu_icon_class = 'font-icon-block-content';
 }

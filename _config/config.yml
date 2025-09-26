@@ -2,3 +2,14 @@
 Name: newsletter
 Before: 'app'
 ---
+
+# default records
+Mhe\Newsletter\Model\Channel:
+    default_records:
+        newsletter_default:
+            Title: "Newsletter"
+
+# add extension to add subscription form in templates
+SilverStripe\CMS\Controllers\ContentController:
+    extensions:
+        - 'Mhe\Newsletter\Extensions\SubscriptionFormExtension'
