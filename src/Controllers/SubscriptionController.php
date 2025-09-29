@@ -2,6 +2,7 @@
 
 namespace Mhe\Newsletter\Controllers;
 
+use Mhe\Newsletter\Email\SubscriptionConfirmationEmail;
 use Mhe\Newsletter\Forms\SubscriptionForm;
 use Mhe\Newsletter\Model\Recipient;
 use SilverStripe\ORM\ValidationResult;
@@ -28,11 +29,17 @@ class SubscriptionController extends Controller
 
     public function submitSubscription($data, SubscriptionForm $form): HTTPResponse
     {
-        if (Recipient::createOrUpdateForFormData($data)) {
+        if ($recipient = Recipient::createOrUpdateForFormData($data)) {
+            $this->sendConfirmationMail($recipient);
             $form->sessionMessage(_t(__CLASS__ . '.SUBMIT_SUCCESS', 'Thank you for subscribing! Please check your email for our confirmation email.'), ValidationResult::TYPE_GOOD);
         } else {
             $form->sessionMessage(_t(__CLASS__ . '.SUBMIT_ERROR', 'Something went wrong. Please try again later'), ValidationResult::TYPE_ERROR);
         }
         return $this->owner->redirectBack();
+    }
+
+    protected function sendConfirmationMail(Recipient $recipient) {
+        $email = SubscriptionConfirmationEmail::create($recipient);
+        $email->send();
     }
 }

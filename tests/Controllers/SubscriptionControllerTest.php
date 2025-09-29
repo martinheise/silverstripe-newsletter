@@ -5,6 +5,7 @@ namespace Mhe\Newsletter\Tests\Controllers;
 use Mhe\Newsletter\Model\Channel;
 use Mhe\Newsletter\Model\Recipient;
 use Page;
+use SilverStripe\Control\Director;
 use SilverStripe\Dev\FunctionalTest;
 use SilverStripe\View\SSViewer;
 
@@ -67,12 +68,20 @@ class SubscriptionControllerTest extends FunctionalTest
 
         $subscriptions = $recipient->Subscriptions();
         $this->assertCount(1, $subscriptions);
-        $newsub = $subscriptions->first();
-        $this->assertEquals($channelId, $newsub->ID);
-        $this->assertEmpty($newsub->Confirmed);
-        $this->assertMatchesRegularExpression('/[a-f0-9]{40}/', $newsub->ConfirmationKey);
+        $sub_new = $subscriptions->first();
+        $this->assertEquals($channelId, $sub_new->ID);
+        $this->assertEmpty($sub_new->Confirmed);
+        $this->assertMatchesRegularExpression('/[a-f0-9]{40}/', $sub_new->ConfirmationKey);
 
-        // ToDo: test send mail
+        // email was sent
+        $this->assertEmailSent($email);
+        $mail = $this->findEmail($email);
+        $this->assertEquals('Your newsletter subscription', $mail['Subject']);
+        $this->assertStringContainsString('Hi Jane Doe', $mail['Content']);
+        $this->assertStringContainsString('Please confirm your newsletter subscription', $mail['Content']);
+        $this->assertStringContainsString('Monthly', $mail['Content']);
+        $link = Director::absoluteURL('subscription/confirm/' . $sub_new->ConfirmationKey);
+        $this->assertStringContainsString($link, $mail['Content']);
     }
 
     public function testSubmitSubscriptionValidUpdate()
@@ -102,20 +111,30 @@ class SubscriptionControllerTest extends FunctionalTest
 
         // existing subscriptions were not touched
         $sub_old = $recipient->Subscriptions()->byID($channelId_old);
-        $this->assertNotEmpty($sub_old->Confirmed);
-        $this->assertEmpty($sub_old->ConfirmationKey);
+        $this->assertEmpty($sub_old->Confirmed);
+        $this->assertEquals('aaaaaaaa00000000', $sub_old->ConfirmationKey);
         $sub_old2 = $recipient->Subscriptions()->byID($this->idFromFixture(Channel::class, 'news'));
         $this->assertNotEmpty($sub_old2->Confirmed);
         $this->assertEmpty($sub_old2->ConfirmationKey);
 
-        // ToDo: test send mail
+        // email was sent
+        $this->assertEmailSent($email);
+        $mail = $this->findEmail($email);
+        $this->assertEquals('Your newsletter subscription', $mail['Subject']);
+        $this->assertStringContainsString('Hi El Duderino', $mail['Content']);
+        $this->assertStringContainsString('Please confirm your newsletter subscription', $mail['Content']);
+        $this->assertStringContainsString('Monthly', $mail['Content']);
+        $link = Director::absoluteURL('subscription/confirm/' . 'aaaaaaaa00000000' . '&amp;' . $sub_new->ConfirmationKey);
+        $this->assertStringContainsString($link, $mail['Content']);
     }
 
     public function testConfirmSubscription() {
         // ToDo: confirm subscription per link
+        $this->assertEquals(1, 1);
     }
 
     public function testUnsubscribe() {
         // ToDo: unsubscribe per link
+        $this->assertEquals(1, 1);
     }
 }

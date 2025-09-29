@@ -17,6 +17,6 @@ Mhe\Newsletter\Model\Recipient:
         Email: dude@example.org
         Subscriptions:
             - =>Mhe\Newsletter\Model\Channel.news:
-                  Confirmed: '2025-01-01 00:00:00'
+                Confirmed: '2025-01-01 00:00:00'
             - =>Mhe\Newsletter\Model\Channel.weekly:
-                Confirmed: '2025-02-01 00:00:00'
+                ConfirmationKey: 'aaaaaaaa00000000'

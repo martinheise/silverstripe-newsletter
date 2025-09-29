@@ -2,6 +2,9 @@
 
 namespace Mhe\Newsletter\Model;
 
+use Mhe\Newsletter\Controllers\SubscriptionController;
+use SilverStripe\Control\Controller;
+use SilverStripe\Core\Config\Config;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\ManyManyList;
 use SilverStripe\ORM\ValidationException;
@@ -99,9 +102,9 @@ class Recipient extends DataObject implements PermissionProvider
         return $this->canEdit($member);
     }
 
-    public static function createOrUpdateForFormData($data = []): bool
+    public static function createOrUpdateForFormData($data = []): ?Recipient
     {
-        if (empty($data['Email'])) return false;
+        if (empty($data['Email'])) return null;
         $recipient = Recipient::get()->filter(['Email' => $data['Email']])->first();
         $fieldValues = array_intersect_key($data, array_flip(['Email', 'FullName']));
         try {
@@ -119,8 +122,20 @@ class Recipient extends DataObject implements PermissionProvider
                 $recipient->subscriptions()->setExtraData($channelId, ['ConfirmationKey' => sha1(mt_rand() . mt_rand())]);
             }
         } catch (ValidationException) {
-            return false;
+            return null;
         }
-        return (!empty($recipient));
+        return ($recipient);
+    }
+
+    public function getConfirmationLink(): string {
+        $link = SubscriptionController::singleton()->AbsoluteLink('confirm');
+        $keys = [];
+        foreach ($this->Subscriptions() as $subscription) {
+            if ($subscription->ConfirmationKey) {
+                $keys[] = $subscription->ConfirmationKey;
+            }
+        }
+        $link = Controller::join_links($link, join('&', $keys));
+        return $link;
     }
 }
