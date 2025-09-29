@@ -12,7 +12,7 @@ use SilverStripe\Security\Permission;
  *
  * @property string $Title Display name of the channel
  *
- * @method ManyManyList Subscribers() Subscribers to the channel
+ * @method ManyManyList<Recipient> Subscribers() Subscribers to the channel
  */
 class Channel extends DataObject
 {

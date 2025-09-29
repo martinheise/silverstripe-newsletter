@@ -1,0 +1,9 @@
+---
+Name: newsletter_routes
+After:
+    - '#rootroutes'
+    - '#coreroutes'
+---
+SilverStripe\Control\Director:
+    rules:
+        'subscription//$Action': 'Mhe\Newsletter\Controllers\SubscriptionController'

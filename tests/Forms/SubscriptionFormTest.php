@@ -2,6 +2,7 @@
 
 namespace Mhe\Newsletter\Tests\Forms;
 
+use Mhe\Newsletter\Model\Channel;
 use Page;
 use SilverStripe\Dev\FunctionalTest;
 use SilverStripe\View\SSViewer;
@@ -33,25 +34,36 @@ class SubscriptionFormTest extends FunctionalTest
     }
 
     /*
-     * form is output on page via template
+     * The standard form has all expected fields, including checkboxes for channel selection
      */
-    public function testSubscriptionFormIsPresent(): void
-    {
-        $this->get('home');
-        $form = $this->cssParser()->getBySelector('form#SubscriptionForm_SubscriptionForm');
-        $this->assertNotEmpty($form);
-    }
-
-    /*
-     * form has all expected fields, included a dropdown for channel selection
-     */
-    public function testSubscriptionFormHasAllFields(): void
+    public function testSubscriptionFormStandardHasAllFields(): void
     {
         $this->get('home');
         $form = $this->cssParser()->getBySelector('form#SubscriptionForm_SubscriptionForm')[0];
         $this->assertNotEmpty($form->xpath('//input[@name="FullName"]'));
         $this->assertNotEmpty($form->xpath('//input[@name="Email"]'));
-        $channelSelect = $form->xpath('//select[@name="Channels"]')[0] ?? null;
+        $channelSelect = $form->xpath('//input[@name="Channels[' . $this->idFromFixture(Channel::class, 'news'). ']"]')[0] ?? null;
         $this->assertIsObject($channelSelect);
+        $this->assertEquals($channelSelect['type'], "checkbox");
+        $this->assertEquals((int)$channelSelect['value'], $this->idFromFixture(Channel::class, 'news'));
+        $channelSelect = $form->xpath('//input[@name="Channels[' . $this->idFromFixture(Channel::class, 'monthly'). ']"]')[0] ?? null;
+        $this->assertIsObject($channelSelect);
+        $this->assertEquals($channelSelect['type'], "checkbox");
+        $this->assertEquals((int)$channelSelect['value'], $this->idFromFixture(Channel::class, 'monthly'));
+    }
+
+    /*
+     * The filtered form has all expected fields, including a hidden field for the desired channel
+     */
+    public function testSubscriptionFormFilteredHasAllFields(): void
+    {
+        $this->get('home');
+        $form = $this->cssParser()->getBySelector('form#SubscriptionForm_SubscriptionForm')[1];
+        $this->assertNotEmpty($form->xpath('//input[@name="FullName"]'));
+        $this->assertNotEmpty($form->xpath('//input[@name="Email"]'));
+        $channelSelect = $form->xpath('//input[@name="Channels[]"]')[0] ?? null;
+        $this->assertIsObject($channelSelect);
+        $this->assertEquals($channelSelect['type'], "hidden");
+        $this->assertEquals((int)$channelSelect['value'], $this->idFromFixture(Channel::class, 'monthly'));
     }
 }

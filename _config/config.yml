@@ -12,4 +12,4 @@ Mhe\Newsletter\Model\Channel:
 # add extension to add subscription form in templates
 SilverStripe\CMS\Controllers\ContentController:
     extensions:
-        - 'Mhe\Newsletter\Extensions\SubscriptionFormExtension'
+        - 'Mhe\Newsletter\Extensions\ContentControllerSubscriptionFormExtension'

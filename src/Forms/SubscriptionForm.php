@@ -2,15 +2,16 @@
 
 namespace Mhe\Newsletter\Forms;
 
+use Mhe\Newsletter\Model\Channel;
 use Mhe\Newsletter\Model\Recipient;
 use SilverStripe\Control\RequestHandler;
-use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\Validation\RequiredFieldsValidator;
-use SilverStripe\ORM\ValidationResult;
 
 
 /*
@@ -26,7 +27,7 @@ class SubscriptionForm extends Form
 {
     public function __construct(RequestHandler $controller = null, $name = self::DEFAULT_NAME, array $channelNames = [])
     {
-        $fields = $this->getFormFields();
+        $fields = $this->getFormFields($channelNames);
 
         // Todo: enable multiple forms (e.g. with different channels) per page, set @id
         $actions = FieldList::create(
@@ -45,24 +46,36 @@ class SubscriptionForm extends Form
     /**
      * Get the FieldList for the form, possibly using extensions
      *
+     * @param array $channelNames optional names to filter the available channels
      * @return FieldList
      */
-    protected function getFormFields(): FieldList
+    protected function getFormFields(array $channelNames = []): FieldList
     {
         $fields = Recipient::singleton()->getFrontEndFields();
-        // ToDo: add channel selection if necessary
-        $fields->push(
-            DropdownField::create('Channels')
-        );
+
+        $sources = [];
+        /* @var Channel $channel */
+        foreach(Channel::get() as $channel) {
+            $sources[$channel->ID] = $channel->getTitle();
+        }
+        if (!empty($channelNames)) {
+            $sources = array_filter($sources, fn($source) => in_array($source, $channelNames));
+        }
+        // checkboxes for channel selection, or hidden field if no selection is necessary
+        if (count($sources) > 1) {
+            $fields->push(
+                CheckboxSetField::create(
+                    'Channels',
+                    _t(__CLASS__ . '.CHANNEL', 'Channels'),
+                    $sources)
+            );
+        } elseif (count($sources) == 1) {
+            $fields->push(
+                $channel = HiddenField::create('Channels[]')
+            );
+            $channel->setValue(array_keys($sources)[0]);
+        }
         $this->extend('updateFormFields', $fields);
         return $fields;
-    }
-
-
-    public function submit($data): ValidationResult
-    {
-        // ToDo: implement subscription
-        $this->sessionMessage('SubscriptionForm ' . $data['FullName'] . " "  . $data['Email'], 'success');
-        return $this->getSessionValidationResult();
     }
 }

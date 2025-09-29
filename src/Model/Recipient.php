@@ -3,12 +3,19 @@
 namespace Mhe\Newsletter\Model;
 
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\ManyManyList;
+use SilverStripe\ORM\ValidationException;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
 
 /**
  * A newsletter recipient is a person who subscribed to one or more channels {@see \Mhe\Newsletter\Model\Channel}
  * They should have at least a valid email address and possible additional information like their name
+ *
+ * @property string $FullName optional name of the recipient
+ * @property string $Email Email address of the recipient
+ *
+ * @method ManyManyList<Channel> Subscriptions() Subscribed channels
  */
 class Recipient extends DataObject implements PermissionProvider
 {
@@ -90,5 +97,30 @@ class Recipient extends DataObject implements PermissionProvider
     public function canCreate($member = null, $context = []): bool
     {
         return $this->canEdit($member);
+    }
+
+    public static function createOrUpdateForFormData($data = []): bool
+    {
+        if (empty($data['Email'])) return false;
+        $recipient = Recipient::get()->filter(['Email' => $data['Email']])->first();
+        $fieldValues = array_intersect_key($data, array_flip(['Email', 'FullName']));
+        try {
+            if (!$recipient) {
+                $recipient = Recipient::create($fieldValues);
+            } else {
+                $recipient->update($fieldValues);
+            }
+            $recipient->write();
+            foreach ($data['Channels'] as $channelId) {
+                if ($recipient->subscriptions()->byID($channelId)) continue;
+                $channel = Channel::get()->byID($channelId);
+                if (!$channel) continue;
+                $recipient->subscriptions()->add($channel);
+                $recipient->subscriptions()->setExtraData($channelId, ['ConfirmationKey' => sha1(mt_rand() . mt_rand())]);
+            }
+        } catch (ValidationException) {
+            return false;
+        }
+        return (!empty($recipient));
     }
 }
