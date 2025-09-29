@@ -38,12 +38,12 @@ class SubscriptionControllerTest extends FunctionalTest
     {
         // ToDo: with dataprovider (PHPUnit >= 10)?
         $this->get('home');
-        $this->submitForm('SubscriptionForm_SubscriptionForm', 'action_submitSubscription', array('Email' => ''));
+        $this->submitForm('SubscriptionForm_SubscriptionForm', 'action_submitSubscription', ['Email' => '', 'Channels[1]' => 1]);
         $this->assertPartialMatchBySelector('.message', '"Email" is required');
 
         $this->get('home');
-        $this->submitForm('SubscriptionForm_SubscriptionForm', 'action_submitSubscription', array('Email' => 'test@example.org'));
-        $this->assertPartialMatchBySelector('.message', 'Please select at least one channel to subscribe to');
+        $this->submitForm('SubscriptionForm_SubscriptionForm', 'action_submitSubscription', ['Email' => 'test@example.org']);
+        $this->assertPartialMatchBySelector('.message', 'At least one "Channels" is required');
     }
 
     public function testSubmitSubscriptionValidNew()

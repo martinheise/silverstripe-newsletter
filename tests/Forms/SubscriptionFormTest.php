@@ -40,13 +40,13 @@ class SubscriptionFormTest extends FunctionalTest
     {
         $this->get('home');
         $form = $this->cssParser()->getBySelector('form#SubscriptionForm_SubscriptionForm')[0];
-        $this->assertNotEmpty($form->xpath('//input[@name="FullName"]'));
-        $this->assertNotEmpty($form->xpath('//input[@name="Email"]'));
-        $channelSelect = $form->xpath('//input[@name="Channels[' . $this->idFromFixture(Channel::class, 'news'). ']"]')[0] ?? null;
+        $this->assertNotEmpty($form->xpath('.//input[@name="FullName"]'));
+        $this->assertNotEmpty($form->xpath('.//input[@name="Email"]'));
+        $channelSelect = $form->xpath('.//input[@name="Channels[' . $this->idFromFixture(Channel::class, 'news'). ']"]')[0] ?? null;
         $this->assertIsObject($channelSelect);
         $this->assertEquals($channelSelect['type'], "checkbox");
         $this->assertEquals((int)$channelSelect['value'], $this->idFromFixture(Channel::class, 'news'));
-        $channelSelect = $form->xpath('//input[@name="Channels[' . $this->idFromFixture(Channel::class, 'monthly'). ']"]')[0] ?? null;
+        $channelSelect = $form->xpath('.//input[@name="Channels[' . $this->idFromFixture(Channel::class, 'monthly'). ']"]')[0] ?? null;
         $this->assertIsObject($channelSelect);
         $this->assertEquals($channelSelect['type'], "checkbox");
         $this->assertEquals((int)$channelSelect['value'], $this->idFromFixture(Channel::class, 'monthly'));
@@ -58,10 +58,10 @@ class SubscriptionFormTest extends FunctionalTest
     public function testSubscriptionFormFilteredHasAllFields(): void
     {
         $this->get('home');
-        $form = $this->cssParser()->getBySelector('form#SubscriptionForm_SubscriptionForm')[1];
-        $this->assertNotEmpty($form->xpath('//input[@name="FullName"]'));
-        $this->assertNotEmpty($form->xpath('//input[@name="Email"]'));
-        $channelSelect = $form->xpath('//input[@name="Channels[]"]')[0] ?? null;
+        $form = $this->cssParser()->getBySelector('form#SubscriptionForm_SubscriptionForm_monthly')[0];
+        $this->assertNotEmpty($form->xpath('.//input[@name="FullName"]'));
+        $this->assertNotEmpty($form->xpath('.//input[@name="Email"]'));
+        $channelSelect = $form->xpath('.//input[@name="Channels[' . $this->idFromFixture(Channel::class, 'monthly'). ']"]')[0] ?? null;
         $this->assertIsObject($channelSelect);
         $this->assertEquals($channelSelect['type'], "hidden");
         $this->assertEquals((int)$channelSelect['value'], $this->idFromFixture(Channel::class, 'monthly'));

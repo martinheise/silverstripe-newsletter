@@ -111,7 +111,7 @@ class Recipient extends DataObject implements PermissionProvider
                 $recipient->update($fieldValues);
             }
             $recipient->write();
-            foreach ($data['Channels'] as $channelId) {
+            foreach ($data['Channels'] ?? [] as $channelId) {
                 if ($recipient->subscriptions()->byID($channelId)) continue;
                 $channel = Channel::get()->byID($channelId);
                 if (!$channel) continue;

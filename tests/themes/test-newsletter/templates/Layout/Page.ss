@@ -2,4 +2,4 @@
 $Content
 
 $ChannelSubscriptionForm
-$ChannelSubscriptionForm("Monthly")
+$ChannelSubscriptionForm("Monthly", "_monthly")

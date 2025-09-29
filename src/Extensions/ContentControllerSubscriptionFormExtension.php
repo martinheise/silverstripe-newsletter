@@ -18,10 +18,11 @@ class ContentControllerSubscriptionFormExtension extends Extension
      * Get subscription form for insertion in templates
      *
      * @param string $channelName name of one channel to subscripe, if empty user can select from all channels
+     * @param string $idPostfix postfix to add to the generated form HTML id, helpful for multiple forms on one page
      * @return SubscriptionForm
      */
-    public function ChannelSubscriptionForm(string $channelName = null): SubscriptionForm
+    public function ChannelSubscriptionForm(string $channelName = null, ?string $idPostfix = null): SubscriptionForm
     {
-        return SubscriptionForm::create(SubscriptionController::create(), 'SubscriptionForm', $channelName != '' ? [$channelName] : []);
+        return SubscriptionForm::create(SubscriptionController::create(), 'SubscriptionForm', $channelName != '' ? [$channelName] : [], $idPostfix);
     }
 }

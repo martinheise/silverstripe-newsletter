@@ -38,8 +38,7 @@ class ContentControllerSubscriptionFormExtensionTest extends FunctionalTest
     public function testSubscriptionFormsArePresent(): void
     {
         $this->get('home');
-        // ToDo: forms should have different HTML IDs
-        $form = $this->cssParser()->getBySelector('form#SubscriptionForm_SubscriptionForm');
+        $form = $this->cssParser()->getBySelector('form');
         $this->assertEquals(2, count($form));
         $this->assertEquals($form[0]['action'], "subscription/SubscriptionForm");
         $this->assertEquals($form[1]['action'], "subscription/SubscriptionForm");

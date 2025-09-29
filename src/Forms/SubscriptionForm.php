@@ -10,13 +10,10 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
-use SilverStripe\Forms\RequiredFields;
-use SilverStripe\Forms\Validation\RequiredFieldsValidator;
-
 
 /*
  ToDo:
-    - insert form by shortcode
+    - insert form by shortcode (?)
     - insert form by Elements
  */
 
@@ -25,23 +22,19 @@ use SilverStripe\Forms\Validation\RequiredFieldsValidator;
  */
 class SubscriptionForm extends Form
 {
-    public function __construct(RequestHandler $controller = null, $name = self::DEFAULT_NAME, array $channelNames = [])
+    protected ?string $idPostfix = null;
+
+    public function __construct(RequestHandler $controller = null, $name = self::DEFAULT_NAME, array $channelNames = [], ?string $idPostfix = null)
     {
         $fields = $this->getFormFields($channelNames);
-
-        // Todo: enable multiple forms (e.g. with different channels) per page, set @id
+        // Todo: clean way to enable multiple forms (e.g. with different channels) per page, set @id
         $actions = FieldList::create(
             FormAction::create('submitSubscription', _t(__CLASS__ . '.ACTION_submit', 'Submit'))
         );
-        // change in Silverstripe 6:
-        if (class_exists(RequiredFieldsValidator::class)) {
-            $validator = RequiredFieldsValidator::create('Email');
-        } else {
-            $validator = RequiredFields::create('Email');
-        }
+        $validator = SubscriptionValidator::create('Email');
+        $this->idPostfix = $idPostfix;
         parent::__construct($controller, $name, $fields, $actions, $validator);
     }
-
 
     /**
      * Get the FieldList for the form, possibly using extensions
@@ -70,12 +63,24 @@ class SubscriptionForm extends Form
                     $sources)
             );
         } elseif (count($sources) == 1) {
+            $value = array_keys($sources)[0];
             $fields->push(
-                $channel = HiddenField::create('Channels[]')
+                $channel = HiddenField::create('Channels[' . $value . ']')
             );
-            $channel->setValue(array_keys($sources)[0]);
+            $channel->setValue($value);
         }
         $this->extend('updateFormFields', $fields);
         return $fields;
     }
+
+    protected function getDefaultAttributes(): array
+    {
+        $attrs = parent::getDefaultAttributes();
+        if ($this->idPostfix) {
+            $attrs['id'] = $attrs['id'] . $this->idPostfix;
+        }
+        return $attrs;
+    }
+
+
 }
