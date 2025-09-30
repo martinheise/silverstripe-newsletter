@@ -1,8 +1,17 @@
 en:
   Mhe\Newsletter\Controllers\NewsletterAdmin:
     MENUTITLE: Newsletters
+  Mhe\Newsletter\Controllers\SubscriptionController:
+    CONFIRM_Message: 'Your newsletter subscription was confirmed. You have {count} active subscriptions:'
+    SUBMIT_ERROR: 'Something went wrong. Please try again later'
+    SUBMIT_SUCCESS: 'Thank you for subscribing! Please check your email for our confirmation email.'
+  Mhe\Newsletter\Email\SubscriptionConfirmationEmail:
+    HELLO: Hi
+    MESSAGE: 'Please confirm your newsletter subscription'
+    SUBJECT: 'Your newsletter subscription'
   Mhe\Newsletter\Forms\SubscriptionForm:
     ACTION_submit: Submit
+    CHANNEL: Channels
   Mhe\Newsletter\Model\Channel:
     PLURALNAME: Channels
     PLURALS:

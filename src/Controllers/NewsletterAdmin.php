@@ -13,8 +13,8 @@ class NewsletterAdmin extends ModelAdmin
     private static string $url_segment = 'newsletter';
 
     private static array $managed_models = [
-        'channels' => ['title' => "Channels", 'dataClass' => Channel::class],
-        'recipients' => ['title' => "Recipients", 'dataClass' => Recipient::class]
+        Channel::class,
+        Recipient::class
     ];
 
     private static string $required_permission_codes = self::CMS_ACCESS;

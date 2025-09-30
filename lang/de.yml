@@ -1,0 +1,35 @@
+de:
+  Mhe\Newsletter\Controllers\NewsletterAdmin:
+    MENUTITLE: Newsletter
+  Mhe\Newsletter\Controllers\SubscriptionController:
+    CONFIRM_Message: 'Deine Newsletter-Bestellung wurde erfolgreich bestätigt. Du hast {count} aktive Abos(s):'
+    SUBMIT_ERROR: 'Etwas ist schief gelaufen – bitte versuche es später noch einmal.'
+    SUBMIT_SUCCESS: 'Danke für die Newsletter-Bestellung! Bitte prüfe deinen Mail-Eingang auf die Nachricht mit einem Bestätigungs-Link.'
+  Mhe\Newsletter\Email\SubscriptionConfirmationEmail:
+    HELLO: Hallo
+    MESSAGE: 'Bitte bestätige deine Newsletter-Bestellung'
+    SUBJECT: 'Deine Newsletter-Bestellung'
+  Mhe\Newsletter\Forms\SubscriptionForm:
+    ACTION_submit: Abschicken
+    CHANNEL: Kanäle
+  Mhe\Newsletter\Model\Channel:
+    PLURALNAME: Kanäle
+    PLURALS:
+      one: 'Ein Kanal'
+      other: '{count} Kanäle'
+    SINGULARNAME: Kanal
+    belongs_many_many_Subscribers: Abonnenten
+    db_Title: Titel
+  Mhe\Newsletter\Model\Recipient:
+    EDIT_ALL_HELP: 'Newsletter-Abonnenten verwalten'
+    EDIT_ALL_NAME: 'Newsletter-Abonnenten verwalten'
+    PLURALNAME: Abonnenten
+    PLURALS:
+      one: 'Ein Abonnent'
+      other: '{count} Abonnenten'
+    SINGULARNAME: Recipient
+    VIEW_ALL_HELP: 'Newsletter-Abonnenten sehen'
+    VIEW_ALL_NAME: 'Newsletter-Abonnenten sehen'
+    db_Email: E-Mail
+    db_FullName: 'Name'
+    many_many_Subscriptions: Abonnements
