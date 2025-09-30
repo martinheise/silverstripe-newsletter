@@ -4,8 +4,8 @@ namespace Mhe\Newsletter\Model;
 
 use Mhe\Newsletter\Controllers\SubscriptionController;
 use SilverStripe\Control\Controller;
-use SilverStripe\Core\Config\Config;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\ORM\ManyManyList;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\Security\Permission;
@@ -51,7 +51,7 @@ class Recipient extends DataObject implements PermissionProvider
     private static $many_many_extraFields = [
         'Subscriptions' => [
             'ConfirmationKey' => 'Varchar(40)',
-            'Confirmed' => 'DBDatetime'
+            'Confirmed' => 'Datetime'
         ]
     ];
 
@@ -115,11 +115,14 @@ class Recipient extends DataObject implements PermissionProvider
             }
             $recipient->write();
             foreach ($data['Channels'] ?? [] as $channelId) {
-                if ($recipient->subscriptions()->byID($channelId)) continue;
+                if ($recipient->Subscriptions()->byID($channelId)) continue;
                 $channel = Channel::get()->byID($channelId);
                 if (!$channel) continue;
-                $recipient->subscriptions()->add($channel);
-                $recipient->subscriptions()->setExtraData($channelId, ['ConfirmationKey' => sha1(mt_rand() . mt_rand())]);
+                $recipient->Subscriptions()->add($channel);
+
+                // ToDo: necessary to ASSURE 100% uniqueness?
+                // ToDo: expire Key?
+                $recipient->Subscriptions()->setExtraData($channelId, ['ConfirmationKey' => sha1(mt_rand() . mt_rand())]);
             }
         } catch (ValidationException) {
             return null;
@@ -127,15 +130,41 @@ class Recipient extends DataObject implements PermissionProvider
         return ($recipient);
     }
 
+    /**
+     *  Get all active/confirmed subscriptions
+     *  @return ManyManyList<Channel>
+     * /ent>
+     */
+    public function getActiveSubscriptions(): ManyManyList
+    {
+        return $this->Subscriptions()->filter('Confirmed:not', null);
+    }
+
+    /**
+     * confirm recipient’s subscriptions matching the given keys
+     * @param array $keys
+     * @return void
+     */
+    public function confirmSubscriptions(array $keys)
+    {
+        $subscriptionIds = $this->Subscriptions()->filter(['ConfirmationKey' => $keys])->column('ID');
+        foreach ($subscriptionIds as $id) {
+            $this->Subscriptions()->setExtraData($id, [
+                'ConfirmationKey' => '',
+                'Confirmed' => DBDatetime::now()
+            ]);
+        }
+    }
+
     public function getConfirmationLink(): string {
         $link = SubscriptionController::singleton()->AbsoluteLink('confirm');
-        $keys = [];
+        $parts = [ $this->ID ];
         foreach ($this->Subscriptions() as $subscription) {
             if ($subscription->ConfirmationKey) {
-                $keys[] = $subscription->ConfirmationKey;
+                $parts[] = $subscription->ConfirmationKey;
             }
         }
-        $link = Controller::join_links($link, join('&', $keys));
+        $link = Controller::join_links($link, join('-', $parts));
         return $link;
     }
 }

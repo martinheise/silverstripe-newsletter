@@ -1,8 +1,3 @@
-Page:
-    home:
-        Title: Home
-        URLSegment: home
-
 Mhe\Newsletter\Model\Channel:
     news:
         Title: News
@@ -24,9 +19,7 @@ Mhe\Newsletter\Model\Recipient:
         FullName: Donny
         Email: donny@example.org
         Subscriptions:
-            - =>Mhe\Newsletter\Model\Channel.monthly:
-                  ConfirmationKey: 'bbbb1111'
-            - =>Mhe\Newsletter\Model\Channel.weekly:
-                  ConfirmationKey: 'cccc2222'
             - =>Mhe\Newsletter\Model\Channel.news:
-                  ConfirmationKey: 'dddd3333'
+                  Confirmed: '2025-01-01 00:00:00'
+            - =>Mhe\Newsletter\Model\Channel.weekly:
+                  Confirmed: '2025-01-01 00:00:00'

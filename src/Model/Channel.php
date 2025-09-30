@@ -51,12 +51,11 @@ class Channel extends DataObject
     }
 
     /**
-     * Get a list of active and confirmed subscribers
-     * @return Recipient[]
+     * Get all active/confirmed subscribers
+     * @return ManyManyList<Recipient>
      */
-    public function getActiveSubscribers(): array
+    public function getActiveSubscribers(): ManyManyList
     {
-        // ToDo: implement
-        return [];
+        return $this->Subscribers()->filter('Confirmed:not', null);
     }
 }

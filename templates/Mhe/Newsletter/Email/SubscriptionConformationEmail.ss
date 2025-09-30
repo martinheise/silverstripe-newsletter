@@ -8,4 +8,3 @@
         <li>$Title</li>
     <% end_loop %>
 </ul>
-
