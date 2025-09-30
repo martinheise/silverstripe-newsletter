@@ -16,17 +16,17 @@ use SilverStripe\Security\Permission;
  */
 class Channel extends DataObject
 {
-    private static $table_name = 'NLChannel';
+    private static string $table_name = 'NLChannel';
 
-    private static $db = [
+    private static array $db = [
         'Title' => 'Varchar'
     ];
 
-    private static $summary_fields = [
+    private static array $summary_fields = [
         'Title'
     ];
 
-    private static $belongs_many_many = [
+    private static array $belongs_many_many = [
         'Subscribers' => Recipient::class,
     ];
 

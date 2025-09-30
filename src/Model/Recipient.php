@@ -2,6 +2,7 @@
 
 namespace Mhe\Newsletter\Model;
 
+use Exception;
 use Mhe\Newsletter\Controllers\SubscriptionController;
 use SilverStripe\Control\Controller;
 use SilverStripe\ORM\DataObject;
@@ -12,7 +13,7 @@ use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
 
 /**
- * A newsletter recipient is a person who subscribed to one or more channels {@see \Mhe\Newsletter\Model\Channel}
+ * A newsletter recipient is a person who subscribed to one or more channels {@see Channel}
  * They should have at least a valid email address and possible additional information like their name
  *
  * @property string $FullName optional name of the recipient
@@ -32,23 +33,23 @@ class Recipient extends DataObject implements PermissionProvider
      */
     public const EDIT_ALL = 'NLRecipient_EDIT_ALL';
 
-    private static $table_name = 'NLRecipient';
+    private static string $table_name = 'NLRecipient';
 
-    private static $db = [
+    private static array $db = [
         'FullName' => 'Varchar',
         'Email' => 'Varchar(254)'
     ];
 
-    private static $summary_fields = array(
+    private static array $summary_fields = array(
         'FullName',
         'Email'
     );
 
-    private static $many_many = [
+    private static array $many_many = [
         'Subscriptions' => Channel::class,
     ];
 
-    private static $many_many_extraFields = [
+    private static array $many_many_extraFields = [
         'Subscriptions' => [
             'ConfirmationKey' => 'Varchar(40)',
             'Confirmed' => 'Datetime'
@@ -57,7 +58,7 @@ class Recipient extends DataObject implements PermissionProvider
 
     public function providePermissions(): array
     {
-        $perms = [
+        return [
             self::VIEW_ALL => [
                 'name' => _t(__CLASS__ . '.VIEW_ALL_NAME', 'View newsletter recipients'),
                 'category' => _t('SilverStripe\\Security\\Permission.CONTENT_CATEGORY', 'Content permissions'),
@@ -71,7 +72,6 @@ class Recipient extends DataObject implements PermissionProvider
                 'sort' => 222
             ]
         ];
-        return $perms;
     }
 
     public function canView($member = null): bool
@@ -102,9 +102,14 @@ class Recipient extends DataObject implements PermissionProvider
         return $this->canEdit($member);
     }
 
+    /**
+     * @throws Exception
+     */
     public static function createOrUpdateForFormData($data = []): ?Recipient
     {
-        if (empty($data['Email'])) return null;
+        if (empty($data['Email'])) {
+            return null;
+        }
         $recipient = Recipient::get()->filter(['Email' => $data['Email']])->first();
         $fieldValues = array_intersect_key($data, array_flip(['Email', 'FullName']));
         try {
@@ -115,13 +120,17 @@ class Recipient extends DataObject implements PermissionProvider
             }
             $recipient->write();
             foreach ($data['Channels'] ?? [] as $channelId) {
-                if ($recipient->Subscriptions()->byID($channelId)) continue;
+                if ($recipient->Subscriptions()->byID($channelId)) {
+                    continue;
+                }
                 $channel = Channel::get()->byID($channelId);
-                if (!$channel) continue;
+                if (!$channel) {
+                    continue;
+                }
                 $recipient->Subscriptions()->add($channel);
 
                 // ToDo: necessary to ASSURE 100% uniqueness?
-                // ToDo: expire Key?
+                // ToDo: expiry date for keys?
                 $recipient->Subscriptions()->setExtraData($channelId, ['ConfirmationKey' => sha1(mt_rand() . mt_rand())]);
             }
         } catch (ValidationException) {
@@ -145,9 +154,9 @@ class Recipient extends DataObject implements PermissionProvider
      * @param array $keys
      * @return void
      */
-    public function confirmSubscriptions(array $keys)
+    public function confirmSubscriptions(array $keys): void
     {
-        $subscriptionIds = $this->Subscriptions()->filter(['ConfirmationKey' => $keys])->column('ID');
+        $subscriptionIds = $this->Subscriptions()->filter(['ConfirmationKey' => $keys])->column();
         foreach ($subscriptionIds as $id) {
             $this->Subscriptions()->setExtraData($id, [
                 'ConfirmationKey' => '',
@@ -156,7 +165,8 @@ class Recipient extends DataObject implements PermissionProvider
         }
     }
 
-    public function getConfirmationLink(): string {
+    public function getConfirmationLink(): string
+    {
         $link = SubscriptionController::singleton()->AbsoluteLink('confirm');
         $parts = [ $this->ID ];
         foreach ($this->Subscriptions() as $subscription) {
@@ -164,7 +174,6 @@ class Recipient extends DataObject implements PermissionProvider
                 $parts[] = $subscription->ConfirmationKey;
             }
         }
-        $link = Controller::join_links($link, join('-', $parts));
-        return $link;
+        return Controller::join_links($link, join('-', $parts));
     }
 }
