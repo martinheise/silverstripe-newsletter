@@ -11,7 +11,6 @@ use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
 use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldDetailForm;
-use SilverStripe\Forms\GridField\GridFieldExportButton;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
@@ -55,6 +54,12 @@ class Recipient extends DataObject implements PermissionProvider
         'ActiveSubscriptions.Count',
         'ActiveSubscriptions.First.Title'
     );
+
+    private static array $searchable_fields = [
+        'FullName',
+        'Email',
+        'Subscriptions.Title'
+    ];
 
     private static array $many_many = [
         'Subscriptions' => Channel::class,
@@ -198,8 +203,6 @@ class Recipient extends DataObject implements PermissionProvider
 
         if ($this->ID > 0) {
             $gridConfig = GridFieldConfig_RelationEditor::create();
-            // enable export from here
-            $gridConfig->addComponent(new GridFieldExportButton("before", ['Title', 'Confirmed']));
 
             // edit many_many_extraFields as detail form – ToDo: localization
             $detailFields = new FieldList(

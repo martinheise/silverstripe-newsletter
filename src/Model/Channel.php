@@ -3,6 +3,8 @@
 namespace Mhe\Newsletter\Model;
 
 use Mhe\Newsletter\Controllers\NewsletterAdmin;
+use Mhe\Newsletter\Forms\GridFieldEnhancedExportButton;
+use Mhe\Newsletter\Forms\GridFieldFixedFilter;
 use SilverStripe\Forms\DatetimeField;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
@@ -10,7 +12,7 @@ use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
 use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldDetailForm;
-use SilverStripe\Forms\GridField\GridFieldExportButton;
+use SilverStripe\Forms\GridField\GridFieldPageCount;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\ManyManyList;
@@ -80,9 +82,13 @@ class Channel extends DataObject
 
         if ($this->ID > 0) {
             $gridConfig = GridFieldConfig_RelationEditor::create();
-            // enable export from here
-            // ToDo: Always / per default filter for confirmed subscribers?
-            $gridConfig->addComponent(new GridFieldExportButton("before", ['FullName', 'Email', 'Confirmed']));
+            // only displaying / exporting confirmed recipients
+            $gridConfig->addComponent(new GridFieldFixedFilter(['Confirmed:not' => null]), GridFieldPageCount::class);
+            // enable export for related recipients
+            $gridConfig->addComponent(
+                $export = new GridFieldEnhancedExportButton("before", ['FullName', 'Email', 'Confirmed'])
+            );
+            $export->setExportNamePrefix($this->Title . "_");
 
             // edit many_many_extraFields as detail form – ToDo: localization
             $detailFields = new FieldList(
