@@ -33,14 +33,14 @@ class Channel extends DataObject
         'Title' => 'Varchar'
     ];
 
-    private static array $summary_fields = [
-        'Title',
-        'Subscribers.Count',
-        'ActiveSubscribers.Count',
-    ];
-
     private static array $belongs_many_many = [
         'Subscribers' => Recipient::class,
+    ];
+
+    private static array $summary_fields = [
+        'Title',
+        'ActiveSubscribers.Count',
+        'Subscribers.Count',
     ];
 
     public function canView($member = null): bool
@@ -103,12 +103,17 @@ class Channel extends DataObject
 
             // modify grid columns – ToDo: localization
             $data = $gridConfig->getComponentByType(GridFieldDataColumns::class);
-            $data->setDisplayFields(['FullName' => 'FullName', 'Email' => 'Email', 'Confirmed' => 'Confirmed']);
+            $displayFields = ['FullName' => 'FullName', 'Email' => 'Email', 'Confirmed' => 'Confirmed'];
+            $singleton = singleton(Recipient::class);
+            foreach ($displayFields as $key => $field) {
+                $displayFields[$key] = $singleton->fieldLabel($key);
+            }
+            $data->setDisplayFields($displayFields);
 
             $fields->push(
                 GridField::create(
                     'Subscribers',
-                    $this->fieldLabel('Subscribers'),
+                    $this->fieldLabel('ActiveSubscribers'),
                     $this->Subscribers(),
                     $gridConfig
                 )
@@ -116,5 +121,21 @@ class Channel extends DataObject
         }
         $this->extend('updateCMSFields', $fields);
         return $fields;
+    }
+
+    /**
+     * simple way adding localization to aggregated fields
+     * for display in GridField
+     *
+     * @param $includerelations
+     * @return array
+     */
+    public function fieldLabels($includerelations = true)
+    {
+        $labels = parent::fieldLabels($includerelations);
+        $labels['ActiveSubscribers'] = _t(__CLASS__ . '.aggr_ActiveSubscribers', 'Active Subscribers');
+        $labels['Subscribers.Count'] = _t(__CLASS__ . '.aggr_SubscribersCount', 'Subscribers Count');
+        $labels['ActiveSubscribers.Count'] = _t(__CLASS__ . '.aggr_ActiveSubscribersCount', 'Active Subscribers Count');
+        return $labels;
     }
 }

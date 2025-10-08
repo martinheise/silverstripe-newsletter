@@ -232,4 +232,18 @@ class Recipient extends DataObject implements PermissionProvider
         $this->extend('updateCMSFields', $fields);
         return $fields;
     }
+
+    /**
+     * simple way adding localization to aggregated fields
+     * for display in GridField
+     *
+     * @param $includerelations
+     * @return array
+     */
+    public function fieldLabels($includerelations = true)
+    {
+        $labels = parent::fieldLabels($includerelations);
+        $labels['Confirmed'] = _t(__CLASS__ . '.aggr_Confirmed', 'Confirmed');
+        return $labels;
+    }
 }

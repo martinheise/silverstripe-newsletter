@@ -18,18 +18,22 @@ de:
       one: 'Ein Kanal'
       other: '{count} Kanäle'
     SINGULARNAME: Kanal
-    belongs_many_many_Subscribers: Abonnenten
+    belongs_many_many_Subscribers: Abonnent*innen
     db_Title: Titel
+    aggr_ActiveSubscribers: 'Aktive Abos'
+    aggr_ActiveSubscribersCount: 'Anzahl aktive Abos'
+    aggr_SubscribersCount: 'Anzahl Abos'
   Mhe\Newsletter\Model\Recipient:
-    EDIT_ALL_HELP: 'Newsletter-Abonnenten verwalten'
-    EDIT_ALL_NAME: 'Newsletter-Abonnenten verwalten'
-    PLURALNAME: Abonnenten
+    EDIT_ALL_HELP: 'Newsletter-Abos verwalten'
+    EDIT_ALL_NAME: 'Newsletter-Abos verwalten und ändern'
+    PLURALNAME: Empfänger*innen
     PLURALS:
-      one: 'Ein Abonnent'
-      other: '{count} Abonnenten'
-    SINGULARNAME: Recipient
-    VIEW_ALL_HELP: 'Newsletter-Abonnenten sehen'
-    VIEW_ALL_NAME: 'Newsletter-Abonnenten sehen'
+      one: 'Eine Empfänger*in'
+      other: '{count} Empfänger*innen'
+    SINGULARNAME: Empfänger*in
+    VIEW_ALL_HELP: 'Newsletter-Abos ansehen'
+    VIEW_ALL_NAME: 'Newsletter-Abos sehen'
     db_Email: E-Mail
     db_FullName: 'Name'
     many_many_Subscriptions: Abonnements
+    aggr_Confirmed: 'Bestätigt'
