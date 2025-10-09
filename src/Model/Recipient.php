@@ -5,6 +5,13 @@ namespace Mhe\Newsletter\Model;
 use Exception;
 use Mhe\Newsletter\Controllers\SubscriptionController;
 use SilverStripe\Control\Controller;
+use SilverStripe\Forms\DatetimeField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
+use SilverStripe\Forms\GridField\GridFieldDataColumns;
+use SilverStripe\Forms\GridField\GridFieldDetailForm;
+use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\ORM\ManyManyList;
@@ -42,8 +49,17 @@ class Recipient extends DataObject implements PermissionProvider
 
     private static array $summary_fields = array(
         'FullName',
-        'Email'
+        'Email',
+        'Subscriptions.Count',
+        'ActiveSubscriptions.Count',
+        'ActiveSubscriptions.First.Title'
     );
+
+    private static array $searchable_fields = [
+        'FullName',
+        'Email',
+        //'Subscriptions.Title' // deactivated for now because of error in Channel GridField
+    ];
 
     private static array $many_many = [
         'Subscriptions' => Channel::class,
@@ -175,5 +191,68 @@ class Recipient extends DataObject implements PermissionProvider
             }
         }
         return Controller::join_links($link, join('-', $parts));
+    }
+
+    public function getCMSFields(): FieldList
+    {
+        $fields = $this->scaffoldFormFields([
+            'includeRelations' => false,
+            'tabbed' => false,
+            'ajaxSafe' => true
+        ]);
+
+        if ($this->ID > 0) {
+            $gridConfig = GridFieldConfig_RelationEditor::create();
+
+            $singletonChannel = singleton(Channel::class);
+            // edit many_many_extraFields as detail form – ToDo: localization
+            $detailFields = new FieldList(
+                [
+                    new ReadonlyField('Title', $singletonChannel->fieldLabel('Title')),
+                    new ReadonlyField('ManyMany[ConfirmationKey]', $this->fieldLabel('ConfirmationKey')),
+                    new DatetimeField('ManyMany[Confirmed]', $this->fieldLabel('Confirmed')),
+                ]
+            );
+            // ToDo: when writing: if confirmed, delete ConfirmationKey for cleanup and consistent data?
+            $detailForm = $gridConfig->getComponentByType(GridFieldDetailForm::class);
+            $detailForm->setFields($detailFields);
+
+            // modify grid columns – ToDo: localization
+            $data = $gridConfig->getComponentByType(GridFieldDataColumns::class);
+            $displayFields = ['Title' => 'Title', 'Confirmed' => 'Confirmed'];
+            foreach ($displayFields as $key => $field) {
+                $displayFields[$key] = $singletonChannel->fieldLabel($key);
+            }
+            $data->setDisplayFields($displayFields);
+
+            $fields->push(
+                GridField::create(
+                    'Subscriptions',
+                    $this->fieldLabel('Subscriptions'),
+                    $this->Subscriptions(),
+                    $gridConfig
+                )
+            );
+        }
+        $this->extend('updateCMSFields', $fields);
+        return $fields;
+    }
+
+    /**
+     * simple way adding localization to aggregated fields
+     * for display in GridField
+     *
+     * @param $includerelations
+     * @return array
+     */
+    public function fieldLabels($includerelations = true)
+    {
+        $labels = parent::fieldLabels($includerelations);
+        $labels['Confirmed'] = _t(__CLASS__ . '.aggr_Confirmed', 'Confirmed');
+        $labels['ConfirmationKey'] = _t(__CLASS__ . '.aggr_ConfirmationKey', 'Confirmation Key');
+        $labels['ActiveSubscriptions.Count'] = _t(__CLASS__ . '.aggr_ActiveSubscriptionsCount', 'First Active Subscription Title');
+        $labels['ActiveSubscriptions.First.Title'] = _t(__CLASS__ . '.aggr_ActiveSubscriptionsFirstTitle', 'Active Subscriptions Count');
+        $labels['Subscriptions.Count'] = _t(__CLASS__ . '.aggr_SubscriptionsCount', 'Subscriptions Count');
+        return $labels;
     }
 }

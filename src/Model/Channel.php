@@ -3,6 +3,17 @@
 namespace Mhe\Newsletter\Model;
 
 use Mhe\Newsletter\Controllers\NewsletterAdmin;
+use Mhe\Newsletter\Forms\GridFieldEnhancedExportButton;
+use Mhe\Newsletter\Forms\GridFieldFixedFilter;
+use SilverStripe\Forms\DatetimeField;
+use SilverStripe\Forms\EmailField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
+use SilverStripe\Forms\GridField\GridFieldDataColumns;
+use SilverStripe\Forms\GridField\GridFieldDetailForm;
+use SilverStripe\Forms\GridField\GridFieldPageCount;
+use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\ManyManyList;
 use SilverStripe\Security\Permission;
@@ -22,12 +33,14 @@ class Channel extends DataObject
         'Title' => 'Varchar'
     ];
 
-    private static array $summary_fields = [
-        'Title'
-    ];
-
     private static array $belongs_many_many = [
         'Subscribers' => Recipient::class,
+    ];
+
+    private static array $summary_fields = [
+        'Title',
+        'ActiveSubscribers.Count',
+        'Subscribers.Count',
     ];
 
     public function canView($member = null): bool
@@ -57,5 +70,74 @@ class Channel extends DataObject
     public function getActiveSubscribers(): ManyManyList
     {
         return $this->Subscribers()->filter('Confirmed:not', null);
+    }
+
+    public function getCMSFields(): FieldList
+    {
+        $fields = $this->scaffoldFormFields([
+            'includeRelations' => false,
+            'tabbed' => false,
+            'ajaxSafe' => true
+        ]);
+
+        if ($this->ID > 0) {
+            $gridConfig = GridFieldConfig_RelationEditor::create();
+            // only displaying / exporting confirmed recipients
+            // ToDo: check error on search in recipients if "Subscriptions.Title" is searchable: „Column 'Confirmed' in where clause is ambiguous“
+            $gridConfig->addComponent(new GridFieldFixedFilter(['Confirmed:not' => null]), GridFieldPageCount::class);
+
+            // enable export for related recipients
+            $gridConfig->addComponent(
+                $export = new GridFieldEnhancedExportButton("before", ['FullName', 'Email', 'Confirmed'])
+            );
+            $export->setExportNamePrefix($this->Title . "_");
+
+            $singletonRecipient = singleton(Recipient::class);
+            // edit many_many_extraFields as detail form – ToDo: localization
+            $detailFields = new FieldList(
+                [
+                    new TextField('FullName', $singletonRecipient->fieldLabel('FullName')),
+                    new EmailField('Email', $singletonRecipient->fieldLabel('Email')),
+                    new DatetimeField('ManyMany[Confirmed]', $singletonRecipient->fieldLabel('Confirmed'))
+                ]
+            );
+            $detailForm = $gridConfig->getComponentByType(GridFieldDetailForm::class);
+            $detailForm->setFields($detailFields);
+            // modify grid columns
+            $data = $gridConfig->getComponentByType(GridFieldDataColumns::class);
+            $displayFields = ['FullName' => 'FullName', 'Email' => 'Email', 'Confirmed' => 'Confirmed'];
+            foreach ($displayFields as $key => $field) {
+                $displayFields[$key] = $singletonRecipient->fieldLabel($key);
+            }
+            $data->setDisplayFields($displayFields);
+
+            $fields->push(
+                GridField::create(
+                    'Subscribers',
+                    $this->fieldLabel('ActiveSubscribers'),
+                    $this->Subscribers(),
+                    $gridConfig
+                )
+            );
+        }
+        $this->extend('updateCMSFields', $fields);
+        return $fields;
+    }
+
+    /**
+     * simple way adding localization to aggregated fields
+     * for display in GridField
+     *
+     * @param $includerelations
+     * @return array
+     */
+    public function fieldLabels($includerelations = true)
+    {
+        $labels = parent::fieldLabels($includerelations);
+        $labels['ActiveSubscribers'] = _t(__CLASS__ . '.aggr_ActiveSubscribers', 'Active Subscribers');
+        $labels['ActiveSubscribers.Count'] = _t(__CLASS__ . '.aggr_ActiveSubscribersCount', 'Active Subscribers Count');
+        $labels['Confirmed'] = _t(__CLASS__ . '.aggr_Confirmed', 'Confirmed');
+        $labels['Subscribers.Count'] = _t(__CLASS__ . '.aggr_SubscribersCount', 'Subscribers Count');
+        return $labels;
     }
 }
