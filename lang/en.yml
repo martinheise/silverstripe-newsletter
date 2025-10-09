@@ -22,6 +22,7 @@ en:
     db_Title: Title
     aggr_ActiveSubscribers: 'Active subscribers'
     aggr_ActiveSubscribersCount: 'Count of active subscribers'
+    aggr_Confirmed: 'Confirmed'
     aggr_SubscribersCount: 'Count of subscribers'
   Mhe\Newsletter\Model\Recipient:
     EDIT_ALL_HELP: 'Manage newsletter recipients.'
@@ -37,3 +38,7 @@ en:
     db_FullName: 'Full name'
     many_many_Subscriptions: Subscriptions
     aggr_Confirmed: 'Confirmed'
+    aggr_ConfirmationKey: 'Confirmation Key'
+    aggr_ActiveSubscriptionsCount: 'Count of active subscriptions'
+    aggr_ActiveSubscriptionsFirstTitle: 'First subscription'
+    aggr_SubscriptionsCount: 'Count of subscriptions'

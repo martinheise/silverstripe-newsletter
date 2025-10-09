@@ -89,6 +89,10 @@ class SubscriptionControllerTest extends ThemedTest
         $this->assertMatchesRegularExpression('/[a-f0-9]{40}/', $sub_new->ConfirmationKey);
 
         // existing subscriptions were not touched
+
+        // ToDo: maybe update old keys?
+        // ToDo: what to do ifevery channel is already confirmed
+
         $sub_old = $recipient->Subscriptions()->byID($channelId_old);
         $this->assertEmpty($sub_old->Confirmed);
         $this->assertEquals('aaaaaaaa00000000', $sub_old->ConfirmationKey);

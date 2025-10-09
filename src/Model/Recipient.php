@@ -58,7 +58,7 @@ class Recipient extends DataObject implements PermissionProvider
     private static array $searchable_fields = [
         'FullName',
         'Email',
-        //'Subscriptions.Title' // deactivated because of error in Channel GridField
+        //'Subscriptions.Title' // deactivated for now because of error in Channel GridField
     ];
 
     private static array $many_many = [
@@ -204,12 +204,13 @@ class Recipient extends DataObject implements PermissionProvider
         if ($this->ID > 0) {
             $gridConfig = GridFieldConfig_RelationEditor::create();
 
+            $singletonChannel = singleton(Channel::class);
             // edit many_many_extraFields as detail form – ToDo: localization
             $detailFields = new FieldList(
                 [
-                    new ReadonlyField('Title'),
-                    new ReadonlyField('ManyMany[ConfirmationKey]'),
-                    new DatetimeField('ManyMany[Confirmed]')
+                    new ReadonlyField('Title', $singletonChannel->fieldLabel('Title')),
+                    new ReadonlyField('ManyMany[ConfirmationKey]', $this->fieldLabel('ConfirmationKey')),
+                    new DatetimeField('ManyMany[Confirmed]', $this->fieldLabel('Confirmed')),
                 ]
             );
             // ToDo: when writing: if confirmed, delete ConfirmationKey for cleanup and consistent data?
@@ -218,7 +219,11 @@ class Recipient extends DataObject implements PermissionProvider
 
             // modify grid columns – ToDo: localization
             $data = $gridConfig->getComponentByType(GridFieldDataColumns::class);
-            $data->setDisplayFields(['Title' => 'Title', 'Confirmed' => 'Confirmed']);
+            $displayFields = ['Title' => 'Title', 'Confirmed' => 'Confirmed'];
+            foreach ($displayFields as $key => $field) {
+                $displayFields[$key] = $singletonChannel->fieldLabel($key);
+            }
+            $data->setDisplayFields($displayFields);
 
             $fields->push(
                 GridField::create(
@@ -244,6 +249,10 @@ class Recipient extends DataObject implements PermissionProvider
     {
         $labels = parent::fieldLabels($includerelations);
         $labels['Confirmed'] = _t(__CLASS__ . '.aggr_Confirmed', 'Confirmed');
+        $labels['ConfirmationKey'] = _t(__CLASS__ . '.aggr_ConfirmationKey', 'Confirmation Key');
+        $labels['ActiveSubscriptions.Count'] = _t(__CLASS__ . '.aggr_ActiveSubscriptionsCount', 'First Active Subscription Title');
+        $labels['ActiveSubscriptions.First.Title'] = _t(__CLASS__ . '.aggr_ActiveSubscriptionsFirstTitle', 'Active Subscriptions Count');
+        $labels['Subscriptions.Count'] = _t(__CLASS__ . '.aggr_SubscriptionsCount', 'Subscriptions Count');
         return $labels;
     }
 }

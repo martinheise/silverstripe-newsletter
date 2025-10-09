@@ -22,6 +22,7 @@ de:
     db_Title: Titel
     aggr_ActiveSubscribers: 'Aktive Abos'
     aggr_ActiveSubscribersCount: 'Anzahl aktive Abos'
+    aggr_Confirmed: 'Bestätigt'
     aggr_SubscribersCount: 'Anzahl Abos'
   Mhe\Newsletter\Model\Recipient:
     EDIT_ALL_HELP: 'Newsletter-Abos verwalten'
@@ -37,3 +38,7 @@ de:
     db_FullName: 'Name'
     many_many_Subscriptions: Abonnements
     aggr_Confirmed: 'Bestätigt'
+    aggr_ConfirmationKey: 'Bestätigungs-Schlüssel'
+    aggr_ActiveSubscriptionsCount: 'Anzahl aktive Abos'
+    aggr_ActiveSubscriptionsFirstTitle: 'Erstes Abo'
+    aggr_SubscriptionsCount: 'Anzahl Abos'

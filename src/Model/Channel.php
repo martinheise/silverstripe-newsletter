@@ -83,7 +83,6 @@ class Channel extends DataObject
         if ($this->ID > 0) {
             $gridConfig = GridFieldConfig_RelationEditor::create();
             // only displaying / exporting confirmed recipients
-
             // ToDo: check error on search in recipients if "Subscriptions.Title" is searchable: „Column 'Confirmed' in where clause is ambiguous“
             $gridConfig->addComponent(new GridFieldFixedFilter(['Confirmed:not' => null]), GridFieldPageCount::class);
 
@@ -93,23 +92,22 @@ class Channel extends DataObject
             );
             $export->setExportNamePrefix($this->Title . "_");
 
+            $singletonRecipient = singleton(Recipient::class);
             // edit many_many_extraFields as detail form – ToDo: localization
             $detailFields = new FieldList(
                 [
-                    new TextField('FullName'),
-                    new EmailField('Email'),
-                    new DatetimeField('ManyMany[Confirmed]')
+                    new TextField('FullName', $singletonRecipient->fieldLabel('FullName')),
+                    new EmailField('Email', $singletonRecipient->fieldLabel('Email')),
+                    new DatetimeField('ManyMany[Confirmed]', $singletonRecipient->fieldLabel('Confirmed'))
                 ]
             );
             $detailForm = $gridConfig->getComponentByType(GridFieldDetailForm::class);
             $detailForm->setFields($detailFields);
-
-            // modify grid columns – ToDo: localization
+            // modify grid columns
             $data = $gridConfig->getComponentByType(GridFieldDataColumns::class);
             $displayFields = ['FullName' => 'FullName', 'Email' => 'Email', 'Confirmed' => 'Confirmed'];
-            $singleton = singleton(Recipient::class);
             foreach ($displayFields as $key => $field) {
-                $displayFields[$key] = $singleton->fieldLabel($key);
+                $displayFields[$key] = $singletonRecipient->fieldLabel($key);
             }
             $data->setDisplayFields($displayFields);
 
@@ -137,8 +135,9 @@ class Channel extends DataObject
     {
         $labels = parent::fieldLabels($includerelations);
         $labels['ActiveSubscribers'] = _t(__CLASS__ . '.aggr_ActiveSubscribers', 'Active Subscribers');
-        $labels['Subscribers.Count'] = _t(__CLASS__ . '.aggr_SubscribersCount', 'Subscribers Count');
         $labels['ActiveSubscribers.Count'] = _t(__CLASS__ . '.aggr_ActiveSubscribersCount', 'Active Subscribers Count');
+        $labels['Confirmed'] = _t(__CLASS__ . '.aggr_Confirmed', 'Confirmed');
+        $labels['Subscribers.Count'] = _t(__CLASS__ . '.aggr_SubscribersCount', 'Subscribers Count');
         return $labels;
     }
 }
