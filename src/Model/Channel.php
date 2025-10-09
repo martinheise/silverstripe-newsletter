@@ -83,7 +83,10 @@ class Channel extends DataObject
         if ($this->ID > 0) {
             $gridConfig = GridFieldConfig_RelationEditor::create();
             // only displaying / exporting confirmed recipients
+
+            // ToDo: check error on search in recipients if "Subscriptions.Title" is searchable: „Column 'Confirmed' in where clause is ambiguous“
             $gridConfig->addComponent(new GridFieldFixedFilter(['Confirmed:not' => null]), GridFieldPageCount::class);
+
             // enable export for related recipients
             $gridConfig->addComponent(
                 $export = new GridFieldEnhancedExportButton("before", ['FullName', 'Email', 'Confirmed'])

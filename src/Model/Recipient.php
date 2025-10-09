@@ -58,7 +58,7 @@ class Recipient extends DataObject implements PermissionProvider
     private static array $searchable_fields = [
         'FullName',
         'Email',
-        'Subscriptions.Title'
+        //'Subscriptions.Title' // deactivated because of error in Channel GridField
     ];
 
     private static array $many_many = [
