@@ -5,6 +5,8 @@ de:
     CONFIRM_Message: 'Deine Newsletter-Bestellung wurde erfolgreich bestätigt. Du hast {count} aktive Abos(s):'
     SUBMIT_ERROR: 'Etwas ist schief gelaufen – bitte versuche es später noch einmal.'
     SUBMIT_SUCCESS: 'Danke für die Newsletter-Bestellung! Bitte prüfe deinen Mail-Eingang auf die Nachricht mit einem Bestätigungs-Link.'
+    UNSUBSCRIBE_ERROR: 'Die Abmeldung konnte nicht durchgeführt werden – bitte versuche es später noch einmal.'
+    UNSUBSCRIBE_SUCCESS: 'Du wurdest erfolgreich von den Newslettern abgemeldet.'
   Mhe\Newsletter\Email\SubscriptionConfirmationEmail:
     HELLO: Hallo
     MESSAGE: 'Bitte bestätige deine Newsletter-Bestellung'
@@ -12,6 +14,9 @@ de:
   Mhe\Newsletter\Forms\SubscriptionForm:
     ACTION_submit: Abschicken
     CHANNEL: Kanäle
+  Mhe\Newsletter\Forms\UnsubscribeForm:
+    ACTION_submit: Abschicken
+    CHANNELINFO: '<p>Abschicken um die folgenden Newsletter abzubestellen: {channels}</p>'
   Mhe\Newsletter\Model\Channel:
     PLURALNAME: Kanäle
     PLURALS:
@@ -36,6 +41,7 @@ de:
     VIEW_ALL_NAME: 'Newsletter-Abos sehen'
     db_Email: E-Mail
     db_FullName: 'Name'
+    db_Key: 'Schlüssel'
     many_many_Subscriptions: Abonnements
     aggr_Confirmed: 'Bestätigt'
     aggr_ConfirmationKey: 'Bestätigungs-Schlüssel'

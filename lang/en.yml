@@ -5,6 +5,8 @@ en:
     CONFIRM_Message: 'Your newsletter subscription was confirmed. You have {count} active subscriptions:'
     SUBMIT_ERROR: 'Something went wrong. Please try again later'
     SUBMIT_SUCCESS: 'Thank you for subscribing! Please check your email for our confirmation email.'
+    UNSUBSCRIBE_ERROR: 'Could not perform unsubscribing.'
+    UNSUBSCRIBE_SUCCESS: 'Your subscriptions have been cancelled.'
   Mhe\Newsletter\Email\SubscriptionConfirmationEmail:
     HELLO: Hi
     MESSAGE: 'Please confirm your newsletter subscription'
@@ -12,6 +14,9 @@ en:
   Mhe\Newsletter\Forms\SubscriptionForm:
     ACTION_submit: Submit
     CHANNEL: Channels
+  Mhe\Newsletter\Forms\UnsubscribeForm:
+    ACTION_submit: Submit
+    CHANNELINFO: '<p>Submit to unsubscribe from these channels: {channels}</p>'
   Mhe\Newsletter\Model\Channel:
     PLURALNAME: Channels
     PLURALS:
@@ -36,6 +41,7 @@ en:
     VIEW_ALL_NAME: 'View newsletter recipients'
     db_Email: Email
     db_FullName: 'Full name'
+    db_Key: 'Key'
     many_many_Subscriptions: Subscriptions
     aggr_Confirmed: 'Confirmed'
     aggr_ConfirmationKey: 'Confirmation Key'

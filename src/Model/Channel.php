@@ -88,7 +88,7 @@ class Channel extends DataObject
 
             // enable export for related recipients
             $gridConfig->addComponent(
-                $export = new GridFieldEnhancedExportButton("before", ['FullName', 'Email', 'Confirmed'])
+                $export = new GridFieldEnhancedExportButton("before", ['FullName', 'Email', 'Confirmed', 'UnsubscribeLink'])
             );
             $export->setExportNamePrefix($this->Title . "_");
 
@@ -112,16 +112,26 @@ class Channel extends DataObject
             $data->setDisplayFields($displayFields);
 
             $fields->push(
-                GridField::create(
+                $gridfield = GridField::create(
                     'Subscribers',
                     $this->fieldLabel('ActiveSubscribers'),
                     $this->Subscribers(),
                     $gridConfig
                 )
             );
+            // add calculated unsubscribe link for this channel to CSV export
+            $gridfield->addDataFields(['UnsubscribeLink' => [$this, 'getRecipientUnsubscribeLink']]);
         }
         $this->extend('updateCMSFields', $fields);
         return $fields;
+    }
+
+    public function getRecipientUnsubscribeLink(Recipient $record = null): string
+    {
+        if ($record) {
+            return $record->getUnsubscribeLink($this);
+        }
+        return "";
     }
 
     /**
@@ -131,7 +141,7 @@ class Channel extends DataObject
      * @param $includerelations
      * @return array
      */
-    public function fieldLabels($includerelations = true)
+    public function fieldLabels($includerelations = true): array
     {
         $labels = parent::fieldLabels($includerelations);
         $labels['ActiveSubscribers'] = _t(__CLASS__ . '.aggr_ActiveSubscribers', 'Active Subscribers');
