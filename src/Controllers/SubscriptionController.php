@@ -4,9 +4,12 @@ namespace Mhe\Newsletter\Controllers;
 
 use Mhe\Newsletter\Email\SubscriptionConfirmationEmail;
 use Mhe\Newsletter\Forms\SubscriptionForm;
+use Mhe\Newsletter\Model\Channel;
 use Mhe\Newsletter\Model\Recipient;
 use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\ORM\FieldType\DBHTMLText;
+use SilverStripe\ORM\ManyManyList;
+use SilverStripe\ORM\SS_List;
 use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPResponse;
@@ -60,11 +63,11 @@ class SubscriptionController extends Controller
         // ToDo: set language – per additional URL key, build in original request?
         $parts = $this->getRequest()->param('Keys') ?? '';
         $parts = explode('-', $parts);
-        if (count($parts) < 2 || !is_numeric($parts[0])) {
+        if (count($parts) < 2 || $parts[0] == '') {
             $this->httpError(404);
         }
-        // first part is the ID of the recipient
-        $recipient = Recipient::get()->byID(array_shift($parts));
+        // first part is the Key of the recipient
+        $recipient = Recipient::get_by_key(array_shift($parts));
         if (!$recipient) {
             $this->httpError(404);
         }
@@ -76,8 +79,51 @@ class SubscriptionController extends Controller
         ])->renderWith(['Page']);
     }
 
+    /**
+     * create a complete confirmation Link for given recipient and channel subscriptions
+     * @param Recipient $recipient
+     * @param SS_List $subscriptions
+     * @return string
+     */
+    public function getConfirmLink(Recipient $recipient, SS_List $subscriptions = null): string
+    {
+        if (!$recipient->Key || $recipient->Key == '') {
+            return "";
+        }
+        $link = $this->AbsoluteLink('confirm');
+        if (!$subscriptions) {
+            $subscriptions = $recipient->Subscriptions();
+        }
+        $parts = [ $recipient->Key ];
+        foreach ($subscriptions as $subscription) {
+            if ($subscription->ConfirmationKey != '') {
+                $parts[] = $subscription->ConfirmationKey;
+            }
+        }
+        return Controller::join_links($link, join('-', $parts));
+    }
+
     public function unsubscribe()
     {
         //ToDo: implement
+    }
+
+    /**
+     * create a complete unsubscribe Link for given recipient and channel subscriptions
+     * @param Recipient $recipient
+     * @param SS_List $subscriptions
+     * @return string
+     */
+    public function getUnsubscribeLink(Recipient $recipient, SS_List $subscriptions = null): string
+    {
+        if (!$recipient->Key || $recipient->Key == '') {
+            return "";
+        }
+        $link = $this->AbsoluteLink('unsubscribe');
+        $attr = "";
+        if ($subscriptions && $subscriptions->count() > 0) {
+            $attr = "?ch=" . join(',', $subscriptions->column('ID'));
+        }
+        return Controller::join_links($link, $recipient->Key, $attr);
     }
 }

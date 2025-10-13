@@ -36,6 +36,7 @@ en:
     VIEW_ALL_NAME: 'View newsletter recipients'
     db_Email: Email
     db_FullName: 'Full name'
+    db_Key: 'Key'
     many_many_Subscriptions: Subscriptions
     aggr_Confirmed: 'Confirmed'
     aggr_ConfirmationKey: 'Confirmation Key'

@@ -36,6 +36,7 @@ de:
     VIEW_ALL_NAME: 'Newsletter-Abos sehen'
     db_Email: E-Mail
     db_FullName: 'Name'
+    db_Key: 'Schlüssel'
     many_many_Subscriptions: Abonnements
     aggr_Confirmed: 'Bestätigt'
     aggr_ConfirmationKey: 'Bestätigungs-Schlüssel'

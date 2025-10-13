@@ -59,7 +59,7 @@ class SubscriptionControllerTest extends ThemedTest
         $this->assertStringContainsString('Hi Jane Doe', $mail['Content']);
         $this->assertStringContainsString('Please confirm your newsletter subscription', $mail['Content']);
         $this->assertStringContainsString('Monthly', $mail['Content']);
-        $link = Director::absoluteURL('subscription/confirm/' . $recipient->ID . '-' . $sub_new->ConfirmationKey);
+        $link = Director::absoluteURL('subscription/confirm/' . $recipient->Key . '-' . $sub_new->ConfirmationKey);
         $this->assertStringContainsString($link, $mail['Content']);
     }
 
@@ -91,7 +91,7 @@ class SubscriptionControllerTest extends ThemedTest
         // existing subscriptions were not touched
 
         // ToDo: maybe update old keys?
-        // ToDo: what to do ifevery channel is already confirmed
+        // ToDo: what to do if every channel is already confirmed
 
         $sub_old = $recipient->Subscriptions()->byID($channelId_old);
         $this->assertEmpty($sub_old->Confirmed);
@@ -107,7 +107,7 @@ class SubscriptionControllerTest extends ThemedTest
         $this->assertStringContainsString('Hi El Duderino', $mail['Content']);
         $this->assertStringContainsString('Please confirm your newsletter subscription', $mail['Content']);
         $this->assertStringContainsString('Monthly', $mail['Content']);
-        $link = Director::absoluteURL('subscription/confirm/' . $recipient->ID . '-' . 'aaaaaaaa00000000' . '-' . $sub_new->ConfirmationKey);
+        $link = Director::absoluteURL('subscription/confirm/' . 'abcdef0135792468' . '-' . 'aaaaaaaa00000000' . '-' . $sub_new->ConfirmationKey);
         $this->assertStringContainsString($link, $mail['Content']);
     }
 
@@ -124,7 +124,7 @@ class SubscriptionControllerTest extends ThemedTest
     public function testConfirmSubscription()
     {
         $recipient = $this->objFromFixture(Recipient::class, 'donny');
-        $this->get("subscription/confirm/$recipient->ID-bbbb1111-cccc2222");
+        $this->get("subscription/confirm/ffffff0123456789-bbbb1111-cccc2222");
 
         // subscriptions confirmed by URL param
         $subscription = $recipient->Subscriptions()->byID($this->idFromFixture(Channel::class, 'monthly'));
