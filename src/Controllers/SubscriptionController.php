@@ -4,31 +4,39 @@ namespace Mhe\Newsletter\Controllers;
 
 use Mhe\Newsletter\Email\SubscriptionConfirmationEmail;
 use Mhe\Newsletter\Forms\SubscriptionForm;
+use Mhe\Newsletter\Forms\UnsubscribeForm;
 use Mhe\Newsletter\Model\Recipient;
+use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\ORM\FieldType\DBHTMLText;
+use SilverStripe\ORM\SS_List;
 use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPResponse;
 
+/**
+ * main controller handling subscribing and unsubscribing to newsletter channels
+ */
 class SubscriptionController extends Controller
 {
-    private static $url_segment = 'subscription';
+    private static string $url_segment = 'subscription';
 
-    private static $allowed_actions = [
+    private static array $allowed_actions = [
         'confirm',
+        'unsubscribe',
         'getSubscriptionForm',
+        'getUnsubscribeForm',
     ];
 
-
-    private static $url_handlers = [
+    private static array $url_handlers = [
         'SubscriptionForm' => 'getSubscriptionForm',
+        'UnsubscribeForm' => 'getUnsubscribeForm',
         'confirm//$Keys!' => 'confirm',
+        'unsubscribe//$Keys!' => 'unsubscribe',
     ];
 
     public function getSubscriptionForm(): SubscriptionForm
     {
-        // ToDo: check if at least one channel exists?
-        return SubscriptionForm::create($this->owner, 'SubscriptionForm');
+        return SubscriptionForm::create($this, 'SubscriptionForm');
     }
 
     public function submitSubscription($data, SubscriptionForm $form): HTTPResponse
@@ -37,28 +45,53 @@ class SubscriptionController extends Controller
             $this->sendConfirmationMail($recipient);
             $form->sessionMessage(_t(__CLASS__ . '.SUBMIT_SUCCESS', 'Thank you for subscribing! Please check your email for our confirmation email.'), ValidationResult::TYPE_GOOD);
         } else {
-            $form->sessionMessage(_t(__CLASS__ . '.SUBMIT_ERROR', 'Something went wrong. Please try again later'), ValidationResult::TYPE_ERROR);
+            $form->sessionMessage(_t(__CLASS__ . '.SUBMIT_ERROR', 'Something went wrong. Please try again later'));
         }
-        return $this->owner->redirectBack();
+        return $this->redirectBack();
     }
 
-    protected function sendConfirmationMail(Recipient $recipient): void {
+    protected function sendConfirmationMail(Recipient $recipient): void
+    {
         $email = SubscriptionConfirmationEmail::create($recipient);
         $email->send();
     }
 
+    public function getUnsubscribeForm(): UnsubscribeForm
+    {
+        return UnsubscribeForm::create($this, 'UnsubscribeForm');
+    }
+
+    public function submitUnsubscribe($data, UnsubscribeForm $form): HTTPResponse
+    {
+        $recipient = Recipient::get_by_key($data['RecipientKey'] ?? '');
+        if (!$recipient) {
+            $form->sessionMessage(_t(__CLASS__ . '.UNSUBSCRIBE_ERROR', 'Could not perform unsubscribing.'));
+            return $this->redirectBack();
+        }
+        foreach ($recipient->Subscriptions() as $subscription) {
+            if (in_array($subscription->ID, $data['Channels'] ?? [])) {
+                $recipient->Subscriptions()->remove($subscription);
+            }
+        }
+        $form->sessionMessage(_t(__CLASS__ . '.UNSUBSCRIBE_SUCCESS', 'Your subscriptions have been cancelled.'), ValidationResult::TYPE_GOOD);
+        return $this->redirectBack();
+    }
+
+    /**
+     * Action: confirm newsletter subscription, called usually by a link from the confirmation email
+     *
+     * @throws HTTPResponse_Exception
+     */
     public function confirm(): DBHTMLText
     {
         // ToDo: set language – per additional URL key, build in original request?
         $parts = $this->getRequest()->param('Keys') ?? '';
         $parts = explode('-', $parts);
-        if (count($parts) < 2) {
+        if (count($parts) < 2 || $parts[0] == '') {
             $this->httpError(404);
         }
-        // first part is the ID of the recipient
-        if (is_numeric($parts[0])) {
-            $recipient = Recipient::get()->byID(array_shift($parts));
-        }
+        // first part is the Key of the recipient
+        $recipient = Recipient::get_by_key(array_shift($parts));
         if (!$recipient) {
             $this->httpError(404);
         }
@@ -70,8 +103,67 @@ class SubscriptionController extends Controller
         ])->renderWith(['Page']);
     }
 
-    public function unsubscribe()
+    /**
+     * create a complete confirmation Link for given recipient and channel subscriptions
+     * @param Recipient $recipient
+     * @param SS_List|null $subscriptions
+     * @return string
+     */
+    public function getConfirmLink(Recipient $recipient, SS_List $subscriptions = null): string
     {
-        //ToDo: implement
+        if (!$recipient->Key || $recipient->Key == '') {
+            return "";
+        }
+        $link = $this->AbsoluteLink('confirm');
+        if (!$subscriptions) {
+            $subscriptions = $recipient->Subscriptions();
+        }
+        $parts = [ $recipient->Key ];
+        foreach ($subscriptions as $subscription) {
+            if ($subscription->ConfirmationKey != '') {
+                $parts[] = $subscription->ConfirmationKey;
+            }
+        }
+        return Controller::join_links($link, join('-', $parts));
+    }
+
+    public function unsubscribe(): DBHTMLText
+    {
+        // ToDo: set language
+        $key = $this->getRequest()->param('Keys') ?? '';
+        $recipient = Recipient::get_by_key($key);
+        if (!$recipient) {
+            $this->httpError(404);
+        }
+        $channelIds = $this->getRequest()->requestVar('ch') ?? [];
+        if (!is_array($channelIds)) {
+            $channelIds = explode(',', $channelIds);
+        }
+        $form = UnsubscribeForm::create($this, 'UnsubscribeForm', $recipient, $channelIds);
+        return $this->customise([
+            'Layout' => $this
+                ->customise($recipient)
+                ->customise(['UnsubscribeForm' => $form])
+                ->renderWith($this->getViewer('unsubscribe')),
+        ])->renderWith(['Page']);
+    }
+
+    /**
+     * create a complete unsubscribe Link for given recipient and channel subscriptions
+     * @param Recipient $recipient
+     * @param SS_List|null $subscriptions
+     * @return string
+     */
+    public function getUnsubscribeLink(Recipient $recipient, SS_List $subscriptions = null): string
+    {
+        if (!$recipient->Key || $recipient->Key == '') {
+            return "";
+        }
+        $link = $this->AbsoluteLink('unsubscribe');
+        $attr = "";
+        if ($subscriptions && $subscriptions->count() > 0) {
+            $attr = "?ch=" . join(',', $subscriptions->column('ID'));
+        }
+        return Controller::join_links($link, $recipient->Key, $attr);
     }
 }

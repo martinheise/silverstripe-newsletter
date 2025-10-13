@@ -10,6 +10,7 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
+use SilverStripe\Forms\RequiredFields;
 
 /*
  ToDo:
@@ -27,11 +28,10 @@ class SubscriptionForm extends Form
     public function __construct(RequestHandler $controller = null, $name = self::DEFAULT_NAME, array $channelNames = [], ?string $idPostfix = null)
     {
         $fields = $this->getFormFields($channelNames);
-        // Todo: clean way to enable multiple forms (e.g. with different channels) per page, set @id
         $actions = FieldList::create(
             FormAction::create('submitSubscription', _t(__CLASS__ . '.ACTION_submit', 'Submit'))
         );
-        $validator = SubscriptionValidator::create('Email');
+        $validator = RequiredFields::create('Email', 'Channels');
         $this->idPostfix = $idPostfix;
         parent::__construct($controller, $name, $fields, $actions, $validator);
     }
@@ -48,7 +48,7 @@ class SubscriptionForm extends Form
 
         $sources = [];
         /* @var Channel $channel */
-        foreach(Channel::get() as $channel) {
+        foreach (Channel::get() as $channel) {
             $sources[$channel->ID] = $channel->getTitle();
         }
         if (!empty($channelNames)) {
@@ -60,7 +60,8 @@ class SubscriptionForm extends Form
                 CheckboxSetField::create(
                     'Channels',
                     _t(__CLASS__ . '.CHANNEL', 'Channels'),
-                    $sources)
+                    $sources
+                )
             );
         } elseif (count($sources) == 1) {
             $value = array_keys($sources)[0];
@@ -81,6 +82,4 @@ class SubscriptionForm extends Form
         }
         return $attrs;
     }
-
-
 }

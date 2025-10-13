@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ci:
+    name: CI
+    uses: silverstripe/gha-ci/.github/workflows/ci.yml@v2
+    permissions:
+      pull-requests: read
+      contents: write
+      actions: write

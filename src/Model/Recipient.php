@@ -2,8 +2,15 @@
 
 namespace Mhe\Newsletter\Model;
 
+use Exception;
 use Mhe\Newsletter\Controllers\SubscriptionController;
-use SilverStripe\Control\Controller;
+use SilverStripe\Forms\DatetimeField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
+use SilverStripe\Forms\GridField\GridFieldDataColumns;
+use SilverStripe\Forms\GridField\GridFieldDetailForm;
+use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\ORM\ManyManyList;
@@ -12,11 +19,12 @@ use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
 
 /**
- * A newsletter recipient is a person who subscribed to one or more channels {@see \Mhe\Newsletter\Model\Channel}
+ * A newsletter recipient is a person who subscribed to one or more channels {@see Channel}
  * They should have at least a valid email address and possible additional information like their name
  *
  * @property string $FullName optional name of the recipient
  * @property string $Email Email address of the recipient
+ * @property string $Key Auto-generated key for (un-)subscription links
  *
  * @method ManyManyList<Channel> Subscriptions() Subscribed channels
  */
@@ -32,32 +40,55 @@ class Recipient extends DataObject implements PermissionProvider
      */
     public const EDIT_ALL = 'NLRecipient_EDIT_ALL';
 
-    private static $table_name = 'NLRecipient';
+    private static string $table_name = 'NLRecipient';
 
-    private static $db = [
+    private static array $db = [
         'FullName' => 'Varchar',
-        'Email' => 'Varchar(254)'
+        'Email' => 'Varchar(254)',
+        'Key' => 'Varchar',
     ];
 
-    private static $summary_fields = array(
+    private static array $summary_fields = array(
         'FullName',
-        'Email'
+        'Email',
+        'Subscriptions.Count',
+        'ActiveSubscriptions.Count',
+        'ActiveSubscriptions.First.Title'
     );
 
-    private static $many_many = [
+    private static array $searchable_fields = [
+        'FullName',
+        'Email',
+        'Key'
+        //'Subscriptions.Title' // deactivated for now because of error in Channel GridField
+    ];
+
+    private static array $many_many = [
         'Subscriptions' => Channel::class,
     ];
 
-    private static $many_many_extraFields = [
+    private static array $many_many_extraFields = [
         'Subscriptions' => [
             'ConfirmationKey' => 'Varchar(40)',
             'Confirmed' => 'Datetime'
         ]
     ];
 
+    /**
+     * length of auto generated keys
+     * @config
+     */
+    private static int $autokey_length = 40;
+
+    /**
+     * Characters used for auto generated keys
+     * @config
+     */
+    private static string $autokey_chars = 'abcdef0123456789';
+
     public function providePermissions(): array
     {
-        $perms = [
+        return [
             self::VIEW_ALL => [
                 'name' => _t(__CLASS__ . '.VIEW_ALL_NAME', 'View newsletter recipients'),
                 'category' => _t('SilverStripe\\Security\\Permission.CONTENT_CATEGORY', 'Content permissions'),
@@ -71,7 +102,6 @@ class Recipient extends DataObject implements PermissionProvider
                 'sort' => 222
             ]
         ];
-        return $perms;
     }
 
     public function canView($member = null): bool
@@ -102,9 +132,58 @@ class Recipient extends DataObject implements PermissionProvider
         return $this->canEdit($member);
     }
 
+    protected function onBeforeWrite(): void
+    {
+        parent::onBeforeWrite();
+        if (!$this->Key || $this->Key == '') {
+            $this->Key = $this->generateKey();
+        }
+    }
+
+    /**
+     * Get the matching recipient for the given key
+     * @param string $key
+     * @return static|null
+     */
+    public static function get_by_key(string $key): ?static
+    {
+        if (trim($key) === '') {
+            return null;
+        }
+        return Recipient::get()->filter(['Key' => $key])->first();
+    }
+
+    protected function generateKey(): string
+    {
+        do {
+            $key = self::randomKey();
+        } while (
+            // assure unique codes – force case-insensitive search (default for MySQL anyway)
+            self::get()->filter('Key:nocase', $key)->exists()
+        );
+        return $key;
+    }
+
+    protected static function randomKey(): string
+    {
+        $chars = static::config()->get('autokey_chars');
+        $length = static::config()->get('autokey_length');
+        $key = '';
+        for ($i = 0; $i < $length; $i++) {
+            $key .= substr($chars, random_int(0, strlen($chars) - 1), 1);
+        }
+        return $key;
+    }
+
+
+    /**
+     * @throws Exception
+     */
     public static function createOrUpdateForFormData($data = []): ?Recipient
     {
-        if (empty($data['Email'])) return null;
+        if (empty($data['Email'])) {
+            return null;
+        }
         $recipient = Recipient::get()->filter(['Email' => $data['Email']])->first();
         $fieldValues = array_intersect_key($data, array_flip(['Email', 'FullName']));
         try {
@@ -115,14 +194,18 @@ class Recipient extends DataObject implements PermissionProvider
             }
             $recipient->write();
             foreach ($data['Channels'] ?? [] as $channelId) {
-                if ($recipient->Subscriptions()->byID($channelId)) continue;
+                if ($recipient->Subscriptions()->byID($channelId)) {
+                    continue;
+                }
                 $channel = Channel::get()->byID($channelId);
-                if (!$channel) continue;
+                if (!$channel) {
+                    continue;
+                }
                 $recipient->Subscriptions()->add($channel);
 
-                // ToDo: necessary to ASSURE 100% uniqueness?
-                // ToDo: expire Key?
-                $recipient->Subscriptions()->setExtraData($channelId, ['ConfirmationKey' => sha1(mt_rand() . mt_rand())]);
+                // ToDo: do we need expiry dates for keys?
+                // ToDo: put in seperate method, assure uniqueness
+                $recipient->Subscriptions()->setExtraData($channelId, ['ConfirmationKey' => self::randomKey()]);
             }
         } catch (ValidationException) {
             return null;
@@ -145,9 +228,9 @@ class Recipient extends DataObject implements PermissionProvider
      * @param array $keys
      * @return void
      */
-    public function confirmSubscriptions(array $keys)
+    public function confirmSubscriptions(array $keys): void
     {
-        $subscriptionIds = $this->Subscriptions()->filter(['ConfirmationKey' => $keys])->column('ID');
+        $subscriptionIds = $this->Subscriptions()->filter(['ConfirmationKey' => $keys])->column();
         foreach ($subscriptionIds as $id) {
             $this->Subscriptions()->setExtraData($id, [
                 'ConfirmationKey' => '',
@@ -156,15 +239,93 @@ class Recipient extends DataObject implements PermissionProvider
         }
     }
 
-    public function getConfirmationLink(): string {
-        $link = SubscriptionController::singleton()->AbsoluteLink('confirm');
-        $parts = [ $this->ID ];
-        foreach ($this->Subscriptions() as $subscription) {
-            if ($subscription->ConfirmationKey) {
-                $parts[] = $subscription->ConfirmationKey;
+    /**
+     * Get a link for confirmation of all unconfirmed subscriptions of the recipient
+     * @return string
+     */
+    public function getConfirmationLink(): string
+    {
+        return SubscriptionController::singleton()->getConfirmLink($this, $this->Subscriptions());
+    }
+
+    /**
+     * Get a link for
+     * @param Channel|null $channel
+     * @return string
+     */
+    public function getUnsubscribeLink(Channel $channel = null): string
+    {
+        if ($channel) {
+            if (($sub = $this->Subscriptions()->filter(["ID" => $channel->ID])) && $sub->exists()) {
+                return SubscriptionController::singleton()->getUnsubscribeLink($this, $sub);
+            } else {
+                return "";
             }
         }
-        $link = Controller::join_links($link, join('-', $parts));
-        return $link;
+        return SubscriptionController::singleton()->getUnsubscribeLink($this);
+    }
+
+    public function getCMSFields(): FieldList
+    {
+        $fields = $this->scaffoldFormFields([
+            'includeRelations' => false,
+            'tabbed' => false,
+            'ajaxSafe' => true
+        ]);
+        $fields->fieldByName('Key')->setReadonly(true);
+
+        if ($this->ID > 0) {
+            $gridConfig = GridFieldConfig_RelationEditor::create();
+
+            $singletonChannel = singleton(Channel::class);
+            // edit many_many_extraFields as detail form
+            $detailFields = new FieldList(
+                [
+                    new ReadonlyField('Title', $singletonChannel->fieldLabel('Title')),
+                    new ReadonlyField('ManyMany[ConfirmationKey]', $this->fieldLabel('ConfirmationKey')),
+                    new DatetimeField('ManyMany[Confirmed]', $this->fieldLabel('Confirmed')),
+                ]
+            );
+            // ToDo: when writing: if confirmed, delete ConfirmationKey for cleanup and consistent data?
+            $detailForm = $gridConfig->getComponentByType(GridFieldDetailForm::class);
+            $detailForm->setFields($detailFields);
+
+            // modify grid columns – ToDo: localization
+            $data = $gridConfig->getComponentByType(GridFieldDataColumns::class);
+            $displayFields = ['Title' => 'Title', 'Confirmed' => 'Confirmed'];
+            foreach ($displayFields as $key => $field) {
+                $displayFields[$key] = $singletonChannel->fieldLabel($key);
+            }
+            $data->setDisplayFields($displayFields);
+
+            $fields->push(
+                GridField::create(
+                    'Subscriptions',
+                    $this->fieldLabel('Subscriptions'),
+                    $this->Subscriptions(),
+                    $gridConfig
+                )
+            );
+        }
+        $this->extend('updateCMSFields', $fields);
+        return $fields;
+    }
+
+    /**
+     * simple way adding localization to aggregated fields
+     * for display in GridField
+     *
+     * @param bool $includerelations
+     * @return array
+     */
+    public function fieldLabels($includerelations = true): array
+    {
+        $labels = parent::fieldLabels($includerelations);
+        $labels['Confirmed'] = _t(__CLASS__ . '.aggr_Confirmed', 'Confirmed');
+        $labels['ConfirmationKey'] = _t(__CLASS__ . '.aggr_ConfirmationKey', 'Confirmation Key');
+        $labels['ActiveSubscriptions.Count'] = _t(__CLASS__ . '.aggr_ActiveSubscriptionsCount', 'First Active Subscription Title');
+        $labels['ActiveSubscriptions.First.Title'] = _t(__CLASS__ . '.aggr_ActiveSubscriptionsFirstTitle', 'Active Subscriptions Count');
+        $labels['Subscriptions.Count'] = _t(__CLASS__ . '.aggr_SubscriptionsCount', 'Subscriptions Count');
+        return $labels;
     }
 }
