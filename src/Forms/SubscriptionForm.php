@@ -28,7 +28,6 @@ class SubscriptionForm extends Form
     public function __construct(RequestHandler $controller = null, $name = self::DEFAULT_NAME, array $channelNames = [], ?string $idPostfix = null)
     {
         $fields = $this->getFormFields($channelNames);
-        // Todo: clean way to enable multiple forms (e.g. with different channels) per page, set @id
         $actions = FieldList::create(
             FormAction::create('submitSubscription', _t(__CLASS__ . '.ACTION_submit', 'Submit'))
         );

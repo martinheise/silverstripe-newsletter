@@ -93,7 +93,7 @@ class Channel extends DataObject
             $export->setExportNamePrefix($this->Title . "_");
 
             $singletonRecipient = singleton(Recipient::class);
-            // edit many_many_extraFields as detail form – ToDo: localization
+            // edit many_many_extraFields as detail form
             $detailFields = new FieldList(
                 [
                     new TextField('FullName', $singletonRecipient->fieldLabel('FullName')),
