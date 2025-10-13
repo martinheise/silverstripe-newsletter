@@ -131,7 +131,7 @@ class Channel extends DataObject
      * @param $includerelations
      * @return array
      */
-    public function fieldLabels($includerelations = true)
+    public function fieldLabels($includerelations = true): array
     {
         $labels = parent::fieldLabels($includerelations);
         $labels['ActiveSubscribers'] = _t(__CLASS__ . '.aggr_ActiveSubscribers', 'Active Subscribers');

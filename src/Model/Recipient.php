@@ -4,7 +4,6 @@ namespace Mhe\Newsletter\Model;
 
 use Exception;
 use Mhe\Newsletter\Controllers\SubscriptionController;
-use SilverStripe\Control\Controller;
 use SilverStripe\Forms\DatetimeField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;

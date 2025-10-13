@@ -1,0 +1,23 @@
+Page:
+    home:
+        Title: Home
+        URLSegment: home
+
+Mhe\Newsletter\Model\Channel:
+    news:
+        Title: News
+    weekly:
+        Title: Weekly
+    monthly:
+        Title: Monthly
+
+Mhe\Newsletter\Model\Recipient:
+    dude:
+        FullName: The Dude
+        Email: dude@example.org
+        Key: abcdef0135792468
+        Subscriptions:
+            - =>Mhe\Newsletter\Model\Channel.news:
+                  Confirmed: '2025-01-01 00:00:00'
+            - =>Mhe\Newsletter\Model\Channel.weekly:
+                  ConfirmationKey: 'aaaaaaaa00000000'
