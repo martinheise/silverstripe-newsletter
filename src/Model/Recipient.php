@@ -265,6 +265,13 @@ class Recipient extends DataObject implements PermissionProvider
         return SubscriptionController::singleton()->getUnsubscribeLink($this);
     }
 
+    public function getFrontEndFields($params = null)
+    {
+        $fields = parent::getFrontEndFields($params);
+        $fields->removeByName('Key');
+        return $fields;
+    }
+
     public function getCMSFields(): FieldList
     {
         $fields = $this->scaffoldFormFields([

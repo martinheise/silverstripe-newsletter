@@ -20,6 +20,8 @@ class SubscriptionFormTest extends ThemedTest
         $form = $this->cssParser()->getBySelector('form#SubscriptionForm_SubscriptionForm')[0];
         $this->assertNotEmpty($form->xpath('.//input[@name="FullName"]'));
         $this->assertNotEmpty($form->xpath('.//input[@name="Email"]'));
+        // key is no frontend field:
+        $this->assertEmpty($form->xpath('.//input[@name="Key"]'));
         $channelSelect = $form->xpath('.//input[@name="Channels[' . $this->idFromFixture(Channel::class, 'news') . ']"]')[0] ?? null;
         $this->assertIsObject($channelSelect);
         $this->assertEquals("checkbox", $channelSelect['type']);
@@ -39,6 +41,8 @@ class SubscriptionFormTest extends ThemedTest
         $form = $this->cssParser()->getBySelector('form#SubscriptionForm_SubscriptionForm_monthly')[0];
         $this->assertNotEmpty($form->xpath('.//input[@name="FullName"]'));
         $this->assertNotEmpty($form->xpath('.//input[@name="Email"]'));
+        // key is no frontend field:
+        $this->assertEmpty($form->xpath('.//input[@name="Key"]'));
         $channelSelect = $form->xpath('.//input[@name="Channels[' . $this->idFromFixture(Channel::class, 'monthly') . ']"]')[0] ?? null;
         $this->assertIsObject($channelSelect);
         $this->assertEquals("hidden", $channelSelect['type']);
