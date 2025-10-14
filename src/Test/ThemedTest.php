@@ -5,13 +5,14 @@ namespace Mhe\Newsletter\Test;
 use Exception;
 use Page;
 use SilverStripe\Dev\FunctionalTest;
+use SilverStripe\Dev\TestOnly;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\View\SSViewer;
 
 /**
  * helper class for common testing
  */
-class ThemedTest extends FunctionalTest
+class ThemedTest extends FunctionalTest implements TestOnly
 {
     protected static string $test_theme = 'test-newsletter';
 
