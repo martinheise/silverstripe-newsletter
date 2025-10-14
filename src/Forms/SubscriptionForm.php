@@ -5,12 +5,14 @@ namespace Mhe\Newsletter\Forms;
 use Mhe\Newsletter\Model\Channel;
 use Mhe\Newsletter\Model\Recipient;
 use SilverStripe\Control\RequestHandler;
+use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\RequiredFields;
+use SilverStripe\SiteConfig\SiteConfig;
 
 /*
  ToDo:
@@ -31,7 +33,7 @@ class SubscriptionForm extends Form
         $actions = FieldList::create(
             FormAction::create('submitSubscription', _t(__CLASS__ . '.ACTION_submit', 'Submit'))
         );
-        $validator = RequiredFields::create('Email', 'Channels');
+        $validator = RequiredFields::create('Email', 'Channels', 'Terms');
         $this->idPostfix = $idPostfix;
         parent::__construct($controller, $name, $fields, $actions, $validator);
     }
@@ -70,6 +72,19 @@ class SubscriptionForm extends Form
             );
             $channel->setValue($value);
         }
+
+        // mandatory: agree to terms
+        $siteconfig = SiteConfig::current_site_config();
+        $linkargs = [
+            'termsurl' => $siteconfig->NLTermsPage ? $siteconfig->NLTermsPage->Link() : "",
+            'termstitle' => $siteconfig->NLTermsPage ? $siteconfig->NLTermsPage->getMenuTitle() : _t(__CLASS__ . '.Terms', 'Terms'),
+        ];
+        $fields->push(
+            CheckboxField::create('Terms', _t(__CLASS__ . '.TERMS_Label', 'I have understood the terms'))
+                ->setCustomValidationMessage(_t(__CLASS__ . '.TERMS_Validation_Message', 'To subscribe please accept our terms.'))
+                ->setDescription(_t(__CLASS__ . '.TERMS_Text', '{termstitle}: {termsurl}', $linkargs))
+        );
+
         $this->extend('updateFormFields', $fields);
         return $fields;
     }
