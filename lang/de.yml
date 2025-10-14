@@ -15,7 +15,7 @@ de:
     ACTION_submit: Abschicken
     CHANNEL: Kanäle
     Terms: Bedingungen
-    TERMS_Label: 'Die Bedingungen und Datenschautz-Informationen habe ich zur Kenntnis genommen.'
+    TERMS_Label: 'Die Bedingungen und Datenschutz-Informationen habe ich zur Kenntnis genommen.'
     TERMS_Text: '(<a href="{termsurl}">{termstitle}</a>)'
     TERMS_Validation_Message: 'Bitte bestätige die Newsletter-Bedingungen.'
   Mhe\Newsletter\Forms\UnsubscribeForm:
