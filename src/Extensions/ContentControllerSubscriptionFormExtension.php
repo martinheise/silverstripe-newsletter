@@ -4,6 +4,7 @@ namespace Mhe\Newsletter\Extensions;
 
 use Mhe\Newsletter\Controllers\SubscriptionController;
 use Mhe\Newsletter\Forms\SubscriptionForm;
+use Mhe\Newsletter\Model\Channel;
 use SilverStripe\Core\Extension;
 use SilverStripe\CMS\Controllers\ContentController;
 
@@ -23,6 +24,12 @@ class ContentControllerSubscriptionFormExtension extends Extension
      */
     public function ChannelSubscriptionForm(?string $channelName = null, ?string $idPostfix = null): SubscriptionForm
     {
-        return SubscriptionForm::create(SubscriptionController::create(), 'SubscriptionForm', $channelName != '' ? [$channelName] : [], $idPostfix);
+        $channels = [];
+        if ($channelName != '') {
+            $channels = [Channel::get()->filter(['Title' => $channelName])->first()];
+        }
+        $form = SubscriptionForm::create_default($channels);
+        $form->setIdPostfix($idPostfix);
+        return $form;
     }
 }

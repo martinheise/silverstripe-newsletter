@@ -2,6 +2,8 @@
 
 namespace Mhe\Newsletter\Forms;
 
+use InvalidArgumentException;
+use Mhe\Newsletter\Controllers\SubscriptionController;
 use Mhe\Newsletter\Model\Channel;
 use Mhe\Newsletter\Model\Recipient;
 use SilverStripe\Control\RequestHandler;
@@ -27,35 +29,58 @@ class SubscriptionForm extends Form
 {
     protected ?string $idPostfix = null;
 
-    public function __construct(RequestHandler $controller = null, $name = self::DEFAULT_NAME, array $channelNames = [], ?string $idPostfix = null)
+    /**
+     * @param RequestHandler|null $controller defaults to SubscriptionController
+     * @param string $name
+     * @param Channel[] $channels optional selection of channels, narrow down the options
+     */
+    public function __construct(RequestHandler $controller = null, $name = self::DEFAULT_NAME, array $channels = [])
     {
-        $fields = $this->getFormFields($channelNames);
+        if (!$controller) {
+            $controller = SubscriptionController::create();
+        }
+        $fields = $this->getFormFields($channels);
         $actions = FieldList::create(
             FormAction::create('submitSubscription', _t(__CLASS__ . '.ACTION_submit', 'Submit'))
         );
         $validator = RequiredFields::create('Email', 'Channels', 'Terms');
-        $this->idPostfix = $idPostfix;
         parent::__construct($controller, $name, $fields, $actions, $validator);
+    }
+
+    /**
+     * convenience method: create from with default settings
+     * @param Channel[] $channels optional selection of channels, narrow down the options
+     * @return SubscriptionForm
+     */
+    public static function create_default(array $channels = []): static
+    {
+        return static::create(SubscriptionController::create(), "SubscriptionForm", $channels);
     }
 
     /**
      * Get the FieldList for the form, possibly using extensions
      *
-     * @param array $channelNames optional names to filter the available channels
+     * @param Channel[] $channels optional list of channels
      * @return FieldList
      */
-    protected function getFormFields(array $channelNames = []): FieldList
+    protected function getFormFields(array $channels = []): FieldList
     {
         $fields = Recipient::singleton()->getFrontEndFields();
 
+        if (count($channels) == 0) {
+            $channels = Channel::get();
+        } else {
+            foreach ($channels as $channel) {
+                if (!$channel instanceof Channel) {
+                    throw new InvalidArgumentException('given channel options have to be objects of class Channel');
+                }
+            }
+        }
         $sources = [];
-        /* @var Channel $channel */
-        foreach (Channel::get() as $channel) {
+        foreach ($channels as $channel) {
             $sources[$channel->ID] = $channel->getTitle();
         }
-        if (!empty($channelNames)) {
-            $sources = array_filter($sources, fn($source) => in_array($source, $channelNames));
-        }
+
         // checkboxes for channel selection, or hidden field if no selection is necessary
         if (count($sources) > 1) {
             $fields->push(
@@ -96,5 +121,15 @@ class SubscriptionForm extends Form
             $attrs['id'] = $attrs['id'] . $this->idPostfix;
         }
         return $attrs;
+    }
+
+    public function getIdPostfix(): ?string
+    {
+        return $this->idPostfix;
+    }
+
+    public function setIdPostfix(?string $idPostfix): void
+    {
+        $this->idPostfix = $idPostfix;
     }
 }
