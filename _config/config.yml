@@ -13,3 +13,7 @@ Mhe\Newsletter\Model\Channel:
 SilverStripe\CMS\Controllers\ContentController:
     extensions:
         - 'Mhe\Newsletter\Extensions\ContentControllerSubscriptionFormExtension'
+
+SilverStripe\SiteConfig\SiteConfig:
+    extensions:
+        - Mhe\Newsletter\Extensions\SiteConfigExtension

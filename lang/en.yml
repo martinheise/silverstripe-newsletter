@@ -14,6 +14,10 @@ en:
   Mhe\Newsletter\Forms\SubscriptionForm:
     ACTION_submit: Submit
     CHANNEL: Channels
+    Terms: Terms
+    TERMS_Label: 'I have understood the terms and data privacy information'
+    TERMS_Text: '(<a href="{termsurl}">{termstitle}</a>)'
+    TERMS_Validation_Message: 'To subscribe please accept our terms.'
   Mhe\Newsletter\Forms\UnsubscribeForm:
     ACTION_submit: Submit
     CHANNELINFO: '<p>Submit to unsubscribe from these channels: {channels}</p>'
@@ -48,3 +52,5 @@ en:
     aggr_ActiveSubscriptionsCount: 'Count of active subscriptions'
     aggr_ActiveSubscriptionsFirstTitle: 'First subscription'
     aggr_SubscriptionsCount: 'Count of subscriptions'
+  SilverStripe\SiteConfig\SiteConfig:
+      has_one_NLTermsPage: 'Terms page'
