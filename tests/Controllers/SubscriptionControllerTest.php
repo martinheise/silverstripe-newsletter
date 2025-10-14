@@ -33,7 +33,7 @@ class SubscriptionControllerTest extends ThemedTest
         $name = 'Jane Doe';
 
         $this->get('home');
-        $this->submitForm('SubscriptionForm_SubscriptionForm', 'action_submitSubscription', array('Email' => $email, 'FullName' => $name, "Channels[$channelId]" => $channelId));
+        $this->submitForm('SubscriptionForm_SubscriptionForm', 'action_submitSubscription', ['Email' => $email, 'FullName' => $name, "Channels[$channelId]" => $channelId, "Terms" => 1]);
         // redirected to original page
         $this->assertEquals('home', $this->mainSession->lastUrl());
         // success message
@@ -71,7 +71,7 @@ class SubscriptionControllerTest extends ThemedTest
         $name = 'El Duderino';
 
         $this->get('home');
-        $this->submitForm('SubscriptionForm_SubscriptionForm', 'action_submitSubscription', ['Email' => $email, 'FullName' => $name, "Channels[$channelId_new]" => $channelId_new, "Channels[$channelId_old]" => $channelId_old]);
+        $this->submitForm('SubscriptionForm_SubscriptionForm', 'action_submitSubscription', ['Email' => $email, 'FullName' => $name, "Channels[$channelId_new]" => $channelId_new, "Channels[$channelId_old]" => $channelId_old, "Terms" => 1]);
         // redirected to original page
         $this->assertEquals('home', $this->mainSession->lastUrl());
         // success message
