@@ -1,11 +1,10 @@
-<p><%t Mhe\Newsletter\Email\SubscriptionConfirmationEmail.HELLO 'Hi' %> $FullName,</p>
-
+<html><body>
+<p><%t Mhe\Newsletter\Email\SubscriptionConfirmationEmail.HELLO 'Hi' %> $Recipient.FullName,</p>
 <p><%t Mhe\Newsletter\Email\SubscriptionConfirmationEmail.MESSAGE 'Please confirm your newsletter subscription' %></p>
-
-<p><a href="$ConfirmationLink">$ConfirmationLink</a></p>
+<p><a href="$Recipient.ConfirmationLink">$Recipient.ConfirmationLink</a></p>
 <ul>
-    <% loop $Subscriptions %>
+    <% loop $Recipient.Subscriptions %>
         <li>$Title</li>
     <% end_loop %>
 </ul>
-
+</body></html>

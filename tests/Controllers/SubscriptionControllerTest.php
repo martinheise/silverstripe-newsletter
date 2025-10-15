@@ -124,7 +124,7 @@ class SubscriptionControllerTest extends ThemedTest
     public function testConfirmSubscription()
     {
         $recipient = $this->objFromFixture(Recipient::class, 'donny');
-        $this->get("subscription/confirm/ffffff0123456789-bbbb1111-cccc2222");
+        $response = $this->get("subscription/confirm/ffffff0123456789-bbbb1111-cccc2222");
 
         // subscriptions confirmed by URL param
         $subscription = $recipient->Subscriptions()->byID($this->idFromFixture(Channel::class, 'monthly'));

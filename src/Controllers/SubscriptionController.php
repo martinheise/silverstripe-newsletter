@@ -6,7 +6,10 @@ use Mhe\Newsletter\Email\SubscriptionConfirmationEmail;
 use Mhe\Newsletter\Forms\SubscriptionForm;
 use Mhe\Newsletter\Forms\UnsubscribeForm;
 use Mhe\Newsletter\Model\Recipient;
+use SilverStripe\CMS\Controllers\ContentController;
+use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\HTTPResponse_Exception;
+use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\ORM\SS_List;
 use SilverStripe\ORM\ValidationResult;
@@ -99,7 +102,7 @@ class SubscriptionController extends Controller
         $recipient->confirmSubscriptions($parts);
         // render as default Page with standard template
         return $this->customise([
-            'Layout' => $this->customise($recipient)->renderWith($this->getViewer('confirm')),
+            'Layout' => $this->customise(['Recipient' => $recipient])->renderWith($this->getViewer('confirm')),
         ])->renderWith(['Page']);
     }
 
@@ -142,8 +145,7 @@ class SubscriptionController extends Controller
         $form = UnsubscribeForm::create($this, 'UnsubscribeForm', $recipient, $channelIds);
         return $this->customise([
             'Layout' => $this
-                ->customise($recipient)
-                ->customise(['UnsubscribeForm' => $form])
+                ->customise(['Recipient' => $recipient, 'UnsubscribeForm' => $form])
                 ->renderWith($this->getViewer('unsubscribe')),
         ])->renderWith(['Page']);
     }
@@ -165,5 +167,24 @@ class SubscriptionController extends Controller
             $attr = "?ch=" . join(',', $subscriptions->column('ID'));
         }
         return Controller::join_links($link, $recipient->Key, $attr);
+    }
+
+    /**
+     * generate general title for use in templates
+     * @return string
+     */
+    public function getTitle(): string
+    {
+        return _t(__CLASS__ . '.Title', 'Newsletter');
+    }
+
+    /**
+     * enable the use of default menu from this controller
+     * @param int $level Menu level to return - only level 1 will probably return something in this context
+     * @return ArrayList<SiteTree>
+     */
+    public function getMenu(int $level = 1): ArrayList
+    {
+        return ContentController::singleton()->getMenu($level);
     }
 }
