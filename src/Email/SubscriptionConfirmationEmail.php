@@ -14,6 +14,6 @@ class SubscriptionConfirmationEmail extends Email
         $to = $recipient->Email;
         $subject = _t(__CLASS__ . '.SUBJECT', 'Your newsletter subscription');
         parent::__construct($from, $to, $subject);
-        $this->setData($recipient);
+        $this->setData(['Recipient' => $recipient]);
     }
 }
