@@ -5,8 +5,7 @@ namespace Mhe\Newsletter\Forms;
 use SilverStripe\Forms\GridField\AbstractGridFieldComponent;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridField_DataManipulator;
-use SilverStripe\ORM\Filterable;
-use SilverStripe\ORM\SS_List;
+use SilverStripe\Model\List\SS_List;
 
 /**
  * Filters GridField data with fixed conditions
@@ -19,7 +18,7 @@ class GridFieldFixedFilter extends AbstractGridFieldComponent implements GridFie
 
     protected function checkDataType($dataList): bool
     {
-        return ($dataList instanceof Filterable);
+        return ($dataList instanceof SS_List);
     }
 
     /**

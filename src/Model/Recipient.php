@@ -4,6 +4,7 @@ namespace Mhe\Newsletter\Model;
 
 use Exception;
 use Mhe\Newsletter\Controllers\SubscriptionController;
+use SilverStripe\Core\Validation\ValidationException;
 use SilverStripe\Forms\DatetimeField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
@@ -14,7 +15,6 @@ use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\ORM\ManyManyList;
-use SilverStripe\ORM\ValidationException;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
 
@@ -33,12 +33,12 @@ class Recipient extends DataObject implements PermissionProvider
     /**
      * Permission to view Recipients
      */
-    public const VIEW_ALL = 'NLRecipient_VIEW_ALL';
+    public const string VIEW_ALL = 'NLRecipient_VIEW_ALL';
 
     /**
      * Permission to edit Recipients
      */
-    public const EDIT_ALL = 'NLRecipient_EDIT_ALL';
+    public const string EDIT_ALL = 'NLRecipient_EDIT_ALL';
 
     private static string $table_name = 'NLRecipient';
 
@@ -265,7 +265,7 @@ class Recipient extends DataObject implements PermissionProvider
         return SubscriptionController::singleton()->getUnsubscribeLink($this);
     }
 
-    public function getFrontEndFields($params = null)
+    public function getFrontEndFields($params = null): FieldList
     {
         $fields = parent::getFrontEndFields($params);
         $fields->removeByName('Key');

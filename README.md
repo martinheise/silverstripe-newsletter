@@ -21,7 +21,7 @@ Requires Silverstripe 6.x – for a version compatible with Silverstripe 5 see r
 
 Install with composer:
 
-    composer require mhe/silverstripe-newsletter
+    composer require mhe/silverstripe-newsletter ^2.0
 
 Perform `dev/build` task
 

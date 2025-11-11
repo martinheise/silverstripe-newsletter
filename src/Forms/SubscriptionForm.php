@@ -13,7 +13,7 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
-use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 use SilverStripe\SiteConfig\SiteConfig;
 
 /*
@@ -43,7 +43,7 @@ class SubscriptionForm extends Form
         $actions = FieldList::create(
             FormAction::create('submitSubscription', _t(__CLASS__ . '.ACTION_submit', 'Submit'))
         );
-        $validator = RequiredFields::create('Email', 'Channels', 'Terms');
+        $validator = RequiredFieldsValidator::create('Email', 'Channels', 'Terms');
         parent::__construct($controller, $name, $fields, $actions, $validator);
     }
 
