@@ -9,7 +9,7 @@ use SilverStripe\Forms\TreeDropdownField;
 
 class SiteConfigExtension extends Extension
 {
-    private static $has_one = [
+    private static array $has_one = [
         'NLTermsPage' => SiteTree::class,
     ];
 

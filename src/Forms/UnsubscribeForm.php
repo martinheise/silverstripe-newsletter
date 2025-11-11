@@ -9,7 +9,7 @@ use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\LiteralField;
-use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 
 class UnsubscribeForm extends Form
 {
@@ -19,7 +19,7 @@ class UnsubscribeForm extends Form
         $actions = FieldList::create(
             FormAction::create('submitUnsubscribe', _t(__CLASS__ . '.ACTION_submit', 'Submit'))
         );
-        $validator = RequiredFields::create('RecipientKey', 'Channels');
+        $validator = RequiredFieldsValidator::create('RecipientKey', 'Channels');
         parent::__construct($controller, $name, $fields, $actions, $validator);
         // After success: remove submit button and info, but keep message –ToDo: is there a nicer way?
         $validation = $this->getSessionValidationResult();

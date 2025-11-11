@@ -15,15 +15,15 @@ Creating and sending the actual newsletters might be implemented in the future.
 
 ## Requirements
 
-Requires Silverstripe 5.x
+Requires Silverstripe 6.x – for a version compatible with Silverstripe 5 see respective branch `5`
 
 ## Installation
 
 Install with composer:
 
-    composer require mhe/silverstripe-newsletter ^1.0
+    composer require mhe/silverstripe-newsletter ^2.0
 
-Perform dev/build task
+Perform `dev/build` task
 
 ## Usage overview
 

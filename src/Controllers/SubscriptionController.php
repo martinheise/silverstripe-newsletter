@@ -9,10 +9,10 @@ use Mhe\Newsletter\Model\Recipient;
 use SilverStripe\CMS\Controllers\ContentController;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\HTTPResponse_Exception;
-use SilverStripe\ORM\ArrayList;
+use SilverStripe\Core\Validation\ValidationResult;
+use SilverStripe\Model\List\SS_List;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\ORM\FieldType\DBHTMLText;
-use SilverStripe\ORM\SS_List;
-use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPResponse;
 

@@ -2,7 +2,6 @@
 
 namespace Mhe\Newsletter\Extensions;
 
-use Mhe\Newsletter\Controllers\SubscriptionController;
 use Mhe\Newsletter\Forms\SubscriptionForm;
 use Mhe\Newsletter\Model\Channel;
 use SilverStripe\Core\Extension;
