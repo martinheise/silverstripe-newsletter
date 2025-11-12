@@ -34,7 +34,7 @@ class SubscriptionForm extends Form
      * @param string $name
      * @param Channel[] $channels optional selection of channels, narrow down the options
      */
-    public function __construct(RequestHandler $controller = null, $name = self::DEFAULT_NAME, array $channels = [])
+    public function __construct(?RequestHandler $controller = null, $name = self::DEFAULT_NAME, array $channels = [])
     {
         if (!$controller) {
             $controller = SubscriptionController::create();

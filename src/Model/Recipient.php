@@ -250,10 +250,10 @@ class Recipient extends DataObject implements PermissionProvider
 
     /**
      * Get a link for
-     * @param Channel|null $channel
+     * @param ?Channel $channel
      * @return string
      */
-    public function getUnsubscribeLink(Channel $channel = null): string
+    public function getUnsubscribeLink(?Channel $channel = null): string
     {
         if ($channel) {
             if (($sub = $this->Subscriptions()->filter(["ID" => $channel->ID])) && $sub->exists()) {
