@@ -13,7 +13,7 @@ use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 
 class UnsubscribeForm extends Form
 {
-    public function __construct(RequestHandler $controller = null, $name = self::DEFAULT_NAME, Recipient $recipient = null, array $channelIds = [])
+    public function __construct(?RequestHandler $controller = null, $name = self::DEFAULT_NAME, ?Recipient $recipient = null, array $channelIds = [])
     {
         $fields = $this->getFormFields($recipient, $channelIds);
         $actions = FieldList::create(
@@ -32,11 +32,11 @@ class UnsubscribeForm extends Form
     /**
      * Get the FieldList for the form, possibly using extensions
      *
-     * @param Recipient|null $recipient recipient using this form
+     * @param ?Recipient $recipient recipient using this form
      * @param array $channelIds optional IDs to filter the available channels
      * @return FieldList
      */
-    protected function getFormFields(Recipient $recipient = null, array $channelIds = []): FieldList
+    protected function getFormFields(?Recipient $recipient = null, array $channelIds = []): FieldList
     {
         $fields = FieldList::create();
         if ($recipient) {

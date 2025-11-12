@@ -109,10 +109,10 @@ class SubscriptionController extends Controller
     /**
      * create a complete confirmation Link for given recipient and channel subscriptions
      * @param Recipient $recipient
-     * @param SS_List|null $subscriptions
+     * @param ?SS_List $subscriptions
      * @return string
      */
-    public function getConfirmLink(Recipient $recipient, SS_List $subscriptions = null): string
+    public function getConfirmLink(Recipient $recipient, ?SS_List $subscriptions = null): string
     {
         if (!$recipient->Key || $recipient->Key == '') {
             return "";
@@ -153,10 +153,10 @@ class SubscriptionController extends Controller
     /**
      * create a complete unsubscribe Link for given recipient and channel subscriptions
      * @param Recipient $recipient
-     * @param SS_List|null $subscriptions
+     * @param ?SS_List $subscriptions
      * @return string
      */
-    public function getUnsubscribeLink(Recipient $recipient, SS_List $subscriptions = null): string
+    public function getUnsubscribeLink(Recipient $recipient, ?SS_List $subscriptions = null): string
     {
         if (!$recipient->Key || $recipient->Key == '') {
             return "";
