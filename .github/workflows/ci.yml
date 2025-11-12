@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - develop
+      - 6
   pull_request:
     branches:
       - main
       - develop
+      - 6
   workflow_dispatch:
 
 permissions: {}
