@@ -126,7 +126,7 @@ class Channel extends DataObject
         return $fields;
     }
 
-    public function getRecipientUnsubscribeLink(Recipient $record = null): string
+    public function getRecipientUnsubscribeLink(?Recipient $record = null): string
     {
         if ($record) {
             return $record->getUnsubscribeLink($this);
