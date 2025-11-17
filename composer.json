@@ -1,6 +1,6 @@
 {
     "name": "mhe/silverstripe-newsletter",
-    "description": "Tools for generating responsive images",
+    "description": "A Silverstripe extension enabling users to subscribe to a newsletter",
     "type": "silverstripe-vendormodule",
     "license": "BSD-3-Clause",
     "authors": [
