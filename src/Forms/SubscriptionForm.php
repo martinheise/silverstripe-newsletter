@@ -15,6 +15,7 @@ use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 use SilverStripe\SiteConfig\SiteConfig;
+use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
 
 /*
  ToDo:
@@ -28,6 +29,12 @@ use SilverStripe\SiteConfig\SiteConfig;
 class SubscriptionForm extends Form
 {
     protected ?string $idPostfix = null;
+
+    /**
+     * enable spam protection if extension is available
+     * @config
+     */
+    private static bool $enable_spam_protection = false;
 
     /**
      * @param RequestHandler|null $controller defaults to SubscriptionController
@@ -45,6 +52,10 @@ class SubscriptionForm extends Form
         );
         $validator = RequiredFieldsValidator::create('Email', 'Channels', 'Terms');
         parent::__construct($controller, $name, $fields, $actions, $validator);
+
+        if ($this->hasExtension(FormSpamProtectionExtension::class) and static::config()->get('enable_spam_protection')) {
+            $this->enableSpamProtection();
+        }
     }
 
     /**
