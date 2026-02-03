@@ -10,9 +10,16 @@ use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\Validation\RequiredFieldsValidator;
+use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
 
 class UnsubscribeForm extends Form
 {
+    /**
+     * enable spam protection if extension is available
+     * @config
+     */
+    private static bool $enable_spam_protection = false;
+
     public function __construct(?RequestHandler $controller = null, $name = self::DEFAULT_NAME, ?Recipient $recipient = null, array $channelIds = [])
     {
         $fields = $this->getFormFields($recipient, $channelIds);
@@ -21,11 +28,14 @@ class UnsubscribeForm extends Form
         );
         $validator = RequiredFieldsValidator::create('RecipientKey', 'Channels');
         parent::__construct($controller, $name, $fields, $actions, $validator);
-        // After success: remove submit button and info, but keep message –ToDo: is there a nicer way?
+        // After success: remove submit button and info, but keep message – ToDo: is there a nicer way?
         $validation = $this->getSessionValidationResult();
         if (isset($validation) && $validation->isValid() && count($validation->getMessages()) == 1 && $validation->getMessages()[0]['messageType'] == 'good') {
             $this->Actions()->removeByName('action_submitUnsubscribe');
             $this->Fields()->removeByName('ChannelInfo');
+        }
+        if ($this->hasExtension(FormSpamProtectionExtension::class) and static::config()->get('enable_spam_protection')) {
+            $this->enableSpamProtection();
         }
     }
 
