@@ -2,8 +2,10 @@
 
 namespace Mhe\Newsletter\Tests\Forms;
 
+use Mhe\Newsletter\Forms\SubscriptionForm;
 use Mhe\Newsletter\Model\Channel;
 use Mhe\Newsletter\Test\ThemedTest;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class SubscriptionFormTest extends ThemedTest
 {
@@ -47,5 +49,41 @@ class SubscriptionFormTest extends ThemedTest
         $this->assertIsObject($channelSelect);
         $this->assertEquals("hidden", $channelSelect['type']);
         $this->assertEquals((int)$channelSelect['value'], $this->idFromFixture(Channel::class, 'monthly'));
+    }
+
+
+    /**
+     * data provider for form validation tests
+     * @return array[]
+     */
+    public static function provideFormValidator(): array
+    {
+        return [
+            'valid input' => [
+                'data' => [
+                    'Email' => 'info@example.com',
+                    'Channels' => [1],
+                    'Terms' => 1
+                ],
+                'expected' => true,
+            ],
+            'not a valid email address' => [
+                'data' => [
+                    'Email' => 'invalid',
+                    'Channels' => [1],
+                    'Terms' => 1
+                ],
+                'expected' => false,
+            ],
+        ];
+    }
+
+    #[DataProvider('provideFormValidator')]
+    public function testSubscriptionFormValidation(array $data, bool $expected): void
+    {
+        $form = SubscriptionForm::create_default();
+        $form->loadDataFrom($data);
+        $result = $form->validate();
+        $this->assertSame($expected, $result->isValid());
     }
 }

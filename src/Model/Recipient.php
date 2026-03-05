@@ -43,8 +43,8 @@ class Recipient extends DataObject implements PermissionProvider
     private static string $table_name = 'NLRecipient';
 
     private static array $db = [
-        'FullName' => 'Varchar',
-        'Email' => 'Varchar(254)',
+        'FullName' => 'Varchar(50)',
+        'Email' => 'Email',
         'Key' => 'Varchar',
     ];
 
