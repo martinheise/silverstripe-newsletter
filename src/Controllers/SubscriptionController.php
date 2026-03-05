@@ -45,8 +45,12 @@ class SubscriptionController extends Controller
     public function submitSubscription($data, SubscriptionForm $form): HTTPResponse
     {
         if ($recipient = Recipient::createOrUpdateForFormData($data)) {
-            $this->sendConfirmationMail($recipient);
-            $form->sessionMessage(_t(__CLASS__ . '.SUBMIT_SUCCESS', 'Thank you for subscribing! Please check your email for our confirmation email.'), ValidationResult::TYPE_GOOD);
+            try {
+                $this->sendConfirmationMail($recipient);
+                $form->sessionMessage(_t(__CLASS__ . '.SUBMIT_SUCCESS', 'Thank you for subscribing! Please check your email for our confirmation email.'), ValidationResult::TYPE_GOOD);
+            } catch (\Exception $e) {
+                $form->sessionMessage(_t(__CLASS__ . '.SUBMIT_MAIL_ERROR', 'Error while sending confirmation mail.'));
+            }
         } else {
             $form->sessionMessage(_t(__CLASS__ . '.SUBMIT_ERROR', 'Something went wrong. Please try again later'));
         }

@@ -4,6 +4,7 @@ namespace Mhe\Newsletter\Forms;
 
 use InvalidArgumentException;
 use Mhe\Newsletter\Controllers\SubscriptionController;
+use Mhe\Newsletter\Forms\Validation\SubscriptionFormValidator;
 use Mhe\Newsletter\Model\Channel;
 use Mhe\Newsletter\Model\Recipient;
 use SilverStripe\Control\RequestHandler;
@@ -13,7 +14,6 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
-use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 use SilverStripe\SiteConfig\SiteConfig;
 use SilverStripe\SpamProtection\Extension\FormSpamProtectionExtension;
 
@@ -50,7 +50,7 @@ class SubscriptionForm extends Form
         $actions = FieldList::create(
             FormAction::create('submitSubscription', _t(__CLASS__ . '.ACTION_submit', 'Submit'))
         );
-        $validator = RequiredFieldsValidator::create('Email', 'Channels', 'Terms');
+        $validator = SubscriptionFormValidator::create();
         parent::__construct($controller, $name, $fields, $actions, $validator);
 
         if ($this->hasExtension(FormSpamProtectionExtension::class) and static::config()->get('enable_spam_protection')) {

@@ -49,6 +49,7 @@ Perform `dev/build` task
 
 - `Mhe\Newsletter\Forms\SubscriptionForm.enable_spam_protection`: add spam protection to subscription forms, needs `silverstripe/spamprotection` extension (default: false)
 - `Mhe\Newsletter\Forms\UnsubscribeForm.enable_spam_protection`: add spam protection to unsubscribe forms, needs `silverstripe/spamprotection` extension (default: false)
+- `Mhe\Newsletter\Forms\Validation\SubscriptionFormValidator.invalid_field_regex`: array with regular expressions for form fields that are considered invalid – default blocks HTML tags, URLs and emojis inside the name field
 - `Mhe\Newsletter\Model\Recipient.autokey_length`: length of auto-generated URL keys (default: 40)
 - `Mhe\Newsletter\Model\Recipient.autokey_chars`: characters to use in auto-generated URL keys (default: "abcdef0123456789")
 
