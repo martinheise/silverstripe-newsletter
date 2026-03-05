@@ -66,24 +66,86 @@ class SubscriptionFormTest extends ThemedTest
                     'Terms' => 1
                 ],
                 'expected' => true,
+                'message' => ''
             ],
-            'not a valid email address' => [
+            'missing email' => [
                 'data' => [
-                    'Email' => 'invalid',
+                    'Email' => '',
                     'Channels' => [1],
                     'Terms' => 1
                 ],
                 'expected' => false,
+                'message' => '"Email" is required'
+            ],
+            'invalid email address 1' => [
+                'data' => [
+                    'Email' => 'invalid@example',
+                    'Channels' => [1],
+                    'Terms' => 1
+                ],
+                'expected' => false,
+                'message' => 'Invalid email address'
+            ],
+            'invalid email address 2' => [
+                'data' => [
+                    'Email' => 'invalid.com',
+                    'Channels' => [1],
+                    'Terms' => 1
+                ],
+                'expected' => false,
+                'message' => 'Invalid email address'
+            ],
+            'suspicious name input 1' => [
+                'data' => [
+                    'FullName' => 'look at https://example.com',
+                    'Email' => 'info@example.com',
+                    'Channels' => [1],
+                    'Terms' => 1
+                ],
+                'expected' => false,
+                'message' => 'Invalid value for Full name'
+            ],
+            'suspicious name input 2' => [
+                'data' => [
+                    'FullName' => 'look at <b>this</b>',
+                    'Email' => 'info@example.com',
+                    'Channels' => [1],
+                    'Terms' => 1
+                ],
+                'expected' => false,
+                'message' => 'Invalid value for Full name'
+            ],
+            'suspicious name input 3' => [
+                'data' => [
+                    'FullName' => 'look here 🏆',
+                    'Email' => 'info@example.com',
+                    'Channels' => [1],
+                    'Terms' => 1
+                ],
+                'expected' => false,
+                'message' => 'Invalid value for Full name'
+            ],
+            'valid name' => [
+                'data' => [
+                    'FullName' => 'José-Carlos e. Ива́н',
+                    'Email' => 'info@example.com',
+                    'Channels' => [1],
+                    'Terms' => 1
+                ],
+                'expected' => true,
+                'message' => ''
             ],
         ];
     }
 
     #[DataProvider('provideFormValidator')]
-    public function testSubscriptionFormValidation(array $data, bool $expected): void
+    public function testSubscriptionFormValidation(array $data, bool $expected, string $message): void
     {
         $form = SubscriptionForm::create_default();
         $form->loadDataFrom($data);
         $result = $form->validate();
         $this->assertSame($expected, $result->isValid());
+        $act_message = $result->getMessages()[0]['message'] ?? '';
+        $this->assertEquals($message ?? '', $act_message);
     }
 }
