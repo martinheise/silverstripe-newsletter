@@ -4,6 +4,7 @@ de:
   Mhe\Newsletter\Controllers\SubscriptionController:
     CONFIRM_Message: 'Deine Newsletter-Bestellung wurde erfolgreich bestätigt. Du hast {count} aktive Abos(s):'
     SUBMIT_ERROR: 'Etwas ist schief gelaufen – bitte versuche es später noch einmal.'
+    SUBMIT_MAIL_ERROR: 'Fehler beim Versenden der Bestätigungs-E-Mail.'
     SUBMIT_SUCCESS: 'Danke für die Newsletter-Bestellung! Bitte prüfe deinen Mail-Eingang auf die Nachricht mit einem Bestätigungs-Link.'
     UNSUBSCRIBE_ERROR: 'Die Abmeldung konnte nicht durchgeführt werden – bitte versuche es später noch einmal.'
     UNSUBSCRIBE_SUCCESS: 'Du wurdest erfolgreich von den Newslettern abgemeldet.'
