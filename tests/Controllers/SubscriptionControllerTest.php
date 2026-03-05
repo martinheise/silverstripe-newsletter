@@ -16,7 +16,6 @@ class SubscriptionControllerTest extends ThemedTest
 
     public function testSubmitSubscriptionInvalid()
     {
-        // ToDo: with dataprovider (PHPUnit >= 10)?
         $this->get('home');
         $this->submitForm('SubscriptionForm_SubscriptionForm', 'action_submitSubscription', ['Email' => '', 'Channels[1]' => 1]);
         $this->assertPartialMatchBySelector('.message', '"Email" is required');
