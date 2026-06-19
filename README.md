@@ -42,6 +42,7 @@ Perform `dev/build` task
 - Subscribers can be found in the admin area “Newsletter”
   - Tab “Channels”: references the active and confirmed subscribers, perfect for export and usage in mailings
   - Tab “Recipients”: shows all subscribers, including unconfirmed ones, with detailed information, perfect for data cleanup etc.
+- If module [`colymba/gridfield-bulk-editing-tools`](https://packagist.org/packages/colymba/gridfield-bulk-editing-tools) is installed, bulk deletion of entries is possible.
 
 ## Configuration
 
